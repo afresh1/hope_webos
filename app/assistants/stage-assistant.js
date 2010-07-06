@@ -7,5 +7,5 @@ StageAssistant.prototype.setup = function() {
 	
 	/* for a simple application, the stage assistant's only task is to push the scene, making it
 	   visible */
-	this.controller.pushScene("first");
+	this.controller.pushScene("talks");
 };
