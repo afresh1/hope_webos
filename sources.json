@@ -4,6 +4,6 @@
     },
     {
         "scenes": "talks",
-        "source": "app/assistants/talk-assistant.js"
+        "source": "app/assistants/talks-assistant.js"
     }
 ]

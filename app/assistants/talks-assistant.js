@@ -1,53 +1,84 @@
-function TalksAssistant(argFromPusher) {
+function TalksAssistant(talks) {
+	this.talks = talks;
 }
 
 TalksAssistant.prototype = {
 	setup: function() {
-		Ares.setupSceneAssistant(this);
-	},
-	cleanup: function() {
-		Ares.cleanupSceneAssistant(this);
-	},
-	refreshTap: function(inSender) {
-		var url = "http://www.thenexthope.org/hope_schedule/json.php";
-		var onComplete = function(transport) {
-			var talks = transport.responseJSON;
-			var day_names = Mojo.Locale.getDayNames();
-			var i, t, d;
-			for (i = 0; i < talks.length; i += 1) {
-			  t = talks[i];
-				d = new Date(t.timestamp * 1000);
-				//t.date = d.toUTCString();
-				t.day = day_names[ d.getUTCDay() ];
-				t.hours = d.getUTCHours();
-				if (t.hours < 10) {
-					t.hours = "0" + t.hours;
-				}
-				t.minutes = d.getUTCMinutes();
-				if (t.minutes < 10) {
-					t.minutes = "0" + t.minutes;
-				}
-			}
-			this.listModel = {
-				items: talks
-			};
-			this.controller.setWidgetModel("talksList", this.listModel);
-		}.bind(this);
-		var onFailure = function(transport) {
-			alert("refresh failed");
-		};
-		this.request(url, onComplete, onFailure);
-	},
-	request: function(url, onComplete, onFailure) {
-		var myAjax = new Ajax.Request(url, {
-			method: "get",
-			evalJSON: "force",
-			requestHeaders: {
-				"USER_AGENT": navigator.userAgent
+		this.controller.setupWidget(Mojo.Menu.viewMenu, this.attributes = {
+			//spacerHeight: 0,
+			//menuClass: 'no-fade'
+		},
+		this.model = {
+			visible: true,
+			items: [{},
+			{
+				label: "The Next HOPE",
+				width: 210
 			},
-			onComplete: onComplete,
-			onFailure: onFailure
+			{
+				icon: "refresh",
+				command: "do-Refresh"
+			},
+			]
 		});
+
+		this.controller.setupWidget(Mojo.Menu.commandMenu, this.attributes = {
+			spacerHeight: 0,
+			//menuClass: 'no-fade'
+		},
+		this.model = {
+			visible: true,
+			items: [{
+				icon: "checkedbox",
+				command: "filter-favorites"
+			},
+			{
+				label: "Day",
+				command: "filter-day",
+				width: 128
+			},
+			{
+				label: "Location",
+				command: "filter-location",
+				width: 128
+			},
+			]
+		});
+
+		this.filterListModel = {
+			items: []
+		};
+		this.controller.setupWidget("TalksList", {
+			itemTemplate: "talks/talks-row-template",
+			listTemplate: "talks/talks-list-template",
+			swipeToDelete: false,
+			reordarable: false,
+			filterFunction: this.talks.filterList.bind(this),
+		},
+		this.filterListModel);
+
+		this.updateList();
+
+	},
+	cleanup: function() {},
+	handleCommand: function(event) {
+		Mojo.Log.info("Got event " + event.type);
+		if (event.type === Mojo.Event.command) {
+			switch (event.command) {
+			case "do-Refresh":
+				{
+					this.talks.get(this.updateList);
+					break
+				};
+			default:
+				Mojo.Log.info("Event command " + event.command);
+			}
+		}
+	},
+
+	updateList: function() {
+		this.filterListModel.items = this.talks.talksList;
+		this.controller.modelChanged(this.filterListModel, this);
 	}
-	
 };
+
