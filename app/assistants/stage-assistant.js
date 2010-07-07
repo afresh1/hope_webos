@@ -1,7 +1,7 @@
 function StageAssistant() {
 	/* this is the creator function for your stage assistant object */
 	this.talks = Talks();
-	this.talks.init();
+	this.talks.setup();
 }
 
 StageAssistant.prototype.setup = function() {
@@ -13,7 +13,8 @@ StageAssistant.prototype.setup = function() {
 };
 
 var Talks = function() {
-	var talksList = {
+	var that = this,
+	talksList = {
 		full: [],
 		filtered: [],
 		days: {},
@@ -60,33 +61,6 @@ var Talks = function() {
 			onComplete: function(transport) {
 				var talks = transport.responseJSON;
 				Mojo.Log.info("got talksList");
-
-				var day_names = Mojo.Locale.getDayNames();
-
-				var i, t, d, s;
-				for (i = 0; i < talks.length; i += 1) {
-					t = talks[i];
-					d = new Date(t.timestamp * 1000);
-					//t.date = d.toUTCString();
-					t.day = day_names[d.getUTCDay()];
-					t.hours = d.getUTCHours();
-					if (t.hours < 10) {
-						t.hours = "0" + t.hours;
-					}
-					t.minutes = d.getUTCMinutes();
-					if (t.minutes < 10) {
-						t.minutes = "0" + t.minutes;
-					}
-
-					t.searchable = t.title.toLowerCase();
-					t.searchable += " " + t.location.toLowerCase();
-					t.searchable += " " + t.day.toLowerCase();
-
-					for (s = 0; s < t.speakers.length; s += 1) {
-						t.searchable += " " + t.speakers[s].name.toLowerCase();
-					}
-				}
-
 				updateTalksDB(talks);
 			},
 			onFailure: function(transport) {
@@ -100,7 +74,8 @@ var Talks = function() {
 
 	updateTalksDB = function(tl) {
 		Mojo.Log.info("database size: ", Object.values(tl).size());
-		var i;
+		var i, talk;
+
 		if (Object.toJSON(tl) == "[]" || tl === null) {
 			Mojo.Log.info("Retrieved empty or null list");
 			featureIndexFeed = 0;
@@ -108,14 +83,20 @@ var Talks = function() {
 		} else {
 			Mojo.Log.info("updating talksList");
 
+			talksList.full = [];
 			talksList.days = {};
 			talksList.locations = {};
+
 			for (i = 0; i < tl.length; i += 1) {
-				talksList.days[tl[i].day] = true;
-				talksList.locations[tl[i].location] = true;
+                talk = new TalkAssistant( tl[i], this )
+                talk.setup();
+
+				talksList.days[talk.details.day] = true;
+				talksList.locations[talk.details.location] = true;
+
+                talksList.full.push(talk);
 			}
 
-			talksList.full = tl;
 			applyFilters();
 			notifyWatchers();
 
@@ -153,7 +134,7 @@ var Talks = function() {
 		//loop through the original data set & get the subset of items that have the filterstring 
 		var i = 0;
 		while (i < talksList.filtered.length) {
-			if (talksList.filtered[i].searchable.include(fs)) {
+			if (talksList.filtered[i].details.searchable.include(fs)) {
 				if (subset.length < count && totalSubsetSize >= offset) {
 					subset.push(talksList.filtered[i]);
 				}
@@ -180,7 +161,9 @@ var Talks = function() {
 		var i, c;
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
-			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase())
+			if ( (!filters.days || filters.days === c.details.day.toLowerCase()) 
+              && (!filters.locations || filters.locations === c.details.location.toLowerCase())
+              && (!filters.favorites || this.Favorites.is(c.details.id) )
 			// XXX add favorite filter
 			) {
 				subset.push(c);
@@ -211,7 +194,45 @@ var Talks = function() {
 		for (i = 0; i < updateWatchers.length; i += 1) {
 			updateWatchers[i]();
 		}
-	};
+	},
+
+	Favorites = function() {
+		var cookieData, favorites = {},
+
+		setup = function() {
+			Mojo.Log.info("Loading favorite cookies");
+			cookieData = new Mojo.Model.Cookie("talksFavorites");
+			var cookies = cookieData.get();
+			if (cookies) {
+				favorites = cookies.favorites;
+			}
+
+			storeCookie();
+		},
+
+		storeCookie = function() {
+			Mojo.Log.info("Saving some cookies for later");
+			cookieData.put({
+				favorites: favorites
+			});
+		},
+
+		isFavorite = function(id) {
+			return favorites[id];
+		},
+
+		setFavorite = function(id, value) {
+			Mojo.Log.info("Favorite: ", id, " is being set to ", value);
+			favorites[id] = value;
+			storeCookie();
+		};
+
+		return {
+            setup: setup,
+			is: isFavorite,
+			set: setFavorite
+		}
+	} ();
 
 	return {
 		list: returnList,
@@ -222,13 +243,17 @@ var Talks = function() {
 			return returnListItems("locations")
 		},
 		refresh: getList,
-		init: loadTalksDB,
+		setup: function() {
+			loadTalksDB();
+			Favorites.setup();
+		},
 		search: searchList,
 		registerWatcher: registerWatcher,
 		setFilter: setFilter,
 		getFilter: function(name) {
 			return filters[name]
-		}
+		},
+		favorite: Favorites
 	};
 };
 

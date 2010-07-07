@@ -3,6 +3,7 @@ function TalksAssistant(talks) {
 }
 
 TalksAssistant.prototype = {
+    favoriteModels: {},
 	setup: function() {
 		this.controller.setupWidget(Mojo.Menu.viewMenu, null,
 		{
@@ -60,8 +61,9 @@ TalksAssistant.prototype = {
 			filterFunction: this.talks.search.bind(this)
 		},
 		this.filterListModel = {
-			items: this.talks.list()
+            items: this.talks.list()
 		});
+
 		this.talks.registerWatcher(this.updateList.bind(this));
 	},
 
@@ -95,29 +97,29 @@ TalksAssistant.prototype = {
 			}
 		}
 	},
-
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
-		this.filterListModel.items = this.talks.list();
-		this.controller.modelChanged(this.filterListModel, this);
+		var i, j, available, modelName, menu, command, list
+		    menus = ["days", "locations"],
+            list = this.talks.list();
 
-		var i, j, available, items, modelName, menu, command
-		menus = ["days", "locations"];
+		this.filterListModel.items = list;
+		this.controller.modelChanged(this.filterListModel, this);
 
 		for (i = 0; i < menus.length; i += 1) {
 			menu = menus[i];
 			modelName = menu + "MenuModel";
 			command = "filter-" + menu + "-all";
+			available = this.talks[menu]();
 
-			items = [{
+			this[modelName].items = [{
 				label: "All",
 				command: command
 			}]
 
-			available = this.talks[menu]();
 			if (available) {
 				for (j = 0; j < available.length; j += 1) {
-					items.push({
+					this[modelName].items.push({
 						label: available[j],
 						command: "filter-" + menu + "-" + available[j].toLowerCase()
 					})
@@ -125,8 +127,9 @@ TalksAssistant.prototype = {
 			}
 
 			Mojo.Log.info("modelChanged: ", modelName);
-			this[modelName].items = items;
 			//this.controller.modelChanged(this[modelName], this);
+
+            
 		}
 
 	}
