@@ -1,0 +1,10 @@
+This is a webOS version of a talks app for The Next HOPE.
+
+It is based on the idea from the Android version by micahflee
+http://github.com/micahflee
+http://www.androidzoom.com/android_applications/tools/the-next-hope_ihsc.html
+http://thenexthope.org/2010/07/next-hope-app-available-in-the-android-market/
+
+
+Data is pulled from the schedule available here.
+http://www.thenexthope.org/hope_schedule/json.php
