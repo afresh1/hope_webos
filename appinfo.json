@@ -1,6 +1,6 @@
 {
 	"id": "com.afresh1.hope-webos",
-	"version": "1.0.0",
+	"version": "0.0.1",
 	"vendor": "Andrew Fresh",
 	"type": "web",
 	"main": "index.html",
