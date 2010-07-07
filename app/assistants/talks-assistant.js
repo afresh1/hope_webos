@@ -45,29 +45,33 @@ TalksAssistant.prototype = {
 			]
 		});
 
-		this.filterListModel = {
-			items: []
-		};
+		this.controller.setupWidget("TalksScroller", 
+            this.talksScrollerModel = { mode: 'vertical' });
+
 		this.controller.setupWidget("TalksList", {
-			itemTemplate: "talks/talks-row-template",
-			listTemplate: "talks/talks-list-template",
-			swipeToDelete: false,
-			reordarable: false,
-			filterFunction: this.talks.filterList.bind(this),
-		},
-		this.filterListModel);
+                itemTemplate: "talks/talks-row-template",
+                listTemplate: "talks/talks-list-template",
+                swipeToDelete: false,
+                reordarable: false,
+                //filterFunction: this.talks.filterList.bind(this),
+            },
+            this.filterListModel = {
+                items: this.talks.list()
+		    }
+        );
 
-		this.updateList();
-
+        this.talks.registerWatcher( this.updateList.bind(this) );
 	},
+
 	cleanup: function() {},
+
 	handleCommand: function(event) {
 		Mojo.Log.info("Got event " + event.type);
 		if (event.type === Mojo.Event.command) {
 			switch (event.command) {
 			case "do-Refresh":
 				{
-					this.talks.get(this.updateList);
+					this.talks.refresh(this.updateList);
 					break
 				};
 			default:
@@ -77,7 +81,8 @@ TalksAssistant.prototype = {
 	},
 
 	updateList: function() {
-		this.filterListModel.items = this.talks.talksList;
+        Mojo.Log.info("Updating filterListModel");
+		this.filterListModel.items = this.talks.list();
 		this.controller.modelChanged(this.filterListModel, this);
 	}
 };
