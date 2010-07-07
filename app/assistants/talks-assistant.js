@@ -3,10 +3,9 @@ function TalksAssistant(talks) {
 }
 
 TalksAssistant.prototype = {
-    favoriteModels: {},
+	favoriteModels: {},
 	setup: function() {
-		this.controller.setupWidget(Mojo.Menu.viewMenu, null,
-		{
+		this.controller.setupWidget(Mojo.Menu.viewMenu, null, {
 			visible: true,
 			items: [{
 				label: "The Next HOPE",
@@ -20,8 +19,7 @@ TalksAssistant.prototype = {
 			]
 		});
 
-		this.controller.setupWidget(Mojo.Menu.commandMenu, null,
-		{
+		this.controller.setupWidget(Mojo.Menu.commandMenu, null, {
 			visible: true,
 			items: [{},
 			{
@@ -58,16 +56,19 @@ TalksAssistant.prototype = {
 			listTemplate: "talks/talks-list-template",
 			swipeToDelete: false,
 			reordarable: false,
-			filterFunction: this.talks.search.bind(this)
+			filterFunction: this.talks.search.bind(this),
+			onItemRendered: this.renderTalk.bind(this)
 		},
 		this.filterListModel = {
-            items: this.talks.list()
+			items: this.talks.list()
 		});
 
 		this.talks.registerWatcher(this.updateList.bind(this));
 	},
 
 	cleanup: function() {},
+
+	renderTalk: function(listWidget, itemModel, itemNode) {},
 
 	handleCommand: function(event) {
 		Mojo.Log.info("Got event " + event.type);
@@ -100,8 +101,8 @@ TalksAssistant.prototype = {
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
 		var i, j, available, modelName, menu, command, list
-		    menus = ["days", "locations"],
-            list = this.talks.list();
+		menus = ["days", "locations"],
+		list = this.talks.list();
 
 		this.filterListModel.items = list;
 		this.controller.modelChanged(this.filterListModel, this);
@@ -129,7 +130,6 @@ TalksAssistant.prototype = {
 			Mojo.Log.info("modelChanged: ", modelName);
 			//this.controller.modelChanged(this[modelName], this);
 
-            
 		}
 
 	}
