@@ -13,13 +13,38 @@ StageAssistant.prototype.setup = function() {
 };
 
 var Talks = function() {
-	var talksList = [],
+	var talksList = {
+		full: [],
+		filtered: [],
+		days: {},
+		locations: {}
+	},
+	filters = {
+		days: false,
+		locations: false,
+		favorites: false
+	},
 	db,
 	updateWatchers = [];
+	searchFilter = '',
 
-    returnList = function() {
-        return talksList;
-    },
+	returnList = function() {
+		return talksList.filtered;
+	},
+	returnListItems = function(key) {
+		Mojo.Log.info("returnListItems: ", key);
+		var items = [];
+		var name;
+		if (talksList[key]) {
+			for (name in talksList[key]) {
+				if (talksList[key].hasOwnProperty(name)) {
+					items.push(name);
+				}
+			}
+		}
+		items.sort();
+		return items;
+	},
 	getList = function(updateList) {
 		var that = this;
 		var url = "http://www.thenexthope.org/hope_schedule/json.php";
@@ -53,7 +78,9 @@ var Talks = function() {
 						t.minutes = "0" + t.minutes;
 					}
 
-					t.searchable = t.title.toLowerCase() + " " + t.location.toLowerCase() + " " + t.day.toLowerCase();
+					t.searchable = t.title.toLowerCase();
+					t.searchable += " " + t.location.toLowerCase();
+					t.searchable += " " + t.day.toLowerCase();
 
 					for (s = 0; s < t.speakers.length; s += 1) {
 						t.searchable += " " + t.speakers[s].name.toLowerCase();
@@ -80,12 +107,17 @@ var Talks = function() {
 			getList(); // XXX dangerous!
 		} else {
 			Mojo.Log.info("updating talksList");
-            
-			talksList = tl;
 
-			for (i = 0; i < updateWatchers.length; i += 1) {
-				updateWatchers[i]();
+			talksList.days = {};
+			talksList.locations = {};
+			for (i = 0; i < tl.length; i += 1) {
+				talksList.days[tl[i].day] = true;
+				talksList.locations[tl[i].location] = true;
 			}
+
+			talksList.full = tl;
+			applyFilters();
+			notifyWatchers();
 
 			db.simpleAdd("talksList", tl, function() {
 				Mojo.Log.info("talksList saved OK");
@@ -101,7 +133,7 @@ var Talks = function() {
 		db = new Mojo.Depot({
 			name: "talksDB",
 			version: 1,
-			estimatedSize: 200000
+			estimatedSize: 150000
 		});
 
 		if (!db) {
@@ -109,21 +141,21 @@ var Talks = function() {
 		}
 		else {
 			Mojo.Log.info("Talks Database opened OK");
-            db.simpleGet("talksList", updateTalksDB, getList);
+			db.simpleGet("talksList", updateTalksDB, getList);
 		}
 	},
 
-	filterList = function(filterString, listWidget, offset, count) {
+	searchList = function(filterString, listWidget, offset, count) {
 		var subset = [];
 		var totalSubsetSize = 0;
-		var filterStringLowerCase = filterString.toLowerCase();
+		var fs = filterString.toLowerCase();
 
 		//loop through the original data set & get the subset of items that have the filterstring 
 		var i = 0;
-		while (i < talksList.length) {
-			if (talksList[i].searchable.include(filterStringLowerCase)) {
+		while (i < talksList.filtered.length) {
+			if (talksList.filtered[i].searchable.include(fs)) {
 				if (subset.length < count && totalSubsetSize >= offset) {
-					subset.push(talksList[i]);
+					subset.push(talksList.filtered[i]);
 				}
 				totalSubsetSize++;
 			}
@@ -134,21 +166,66 @@ var Talks = function() {
 		listWidget.mojo.noticeUpdatedItems(offset, subset);
 
 		//set the list's length & count if we're not repeating the same filter string from an earlier pass
-		if (filter !== filterString) {
+		if (searchFilter !== fs) {
 			listWidget.mojo.setLength(totalSubsetSize);
 			listWidget.mojo.setCount(totalSubsetSize);
 		}
-		filter = filterString;
+		searchFilter = fs;
 	},
+
+	applyFilters = function() {
+		Mojo.Log.info("Applying Filters");
+		var subset = [];
+
+		var i, c;
+		for (i = 0; i < talksList.full.length; i += 1) {
+			c = talksList.full[i];
+			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase())
+			// XXX add favorite filter
+			) {
+				subset.push(c);
+			}
+		}
+
+		talksList.filtered = subset;
+		notifyWatchers();
+	},
+
+	setFilter = function(name, value) {
+		Mojo.Log.info("setFilter: ", name, " to ", value);
+		if (value === "all") {
+			value = false;
+		}
+		if (name === "favorites") {
+			value = ! filters[name];
+		}
+		filters[name] = value;
+		applyFilters();
+	},
+
 	registerWatcher = function(callback) {
 		updateWatchers.push(callback);
+	},
+
+	notifyWatchers = function() {
+		for (i = 0; i < updateWatchers.length; i += 1) {
+			updateWatchers[i]();
+		}
 	};
 
 	return {
 		list: returnList,
+		days: function() {
+			return returnListItems("days")
+		},
+		locations: function() {
+			return returnListItems("locations")
+		},
 		refresh: getList,
 		init: loadTalksDB,
-		filter: filterList,
-		registerWatcher: registerWatcher
+		search: searchList,
+		registerWatcher: registerWatcher,
+		setFilter: setFilter
 	};
 };
+
