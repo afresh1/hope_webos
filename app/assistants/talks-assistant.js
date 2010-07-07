@@ -4,10 +4,7 @@ function TalksAssistant(talks) {
 
 TalksAssistant.prototype = {
 	setup: function() {
-		this.controller.setupWidget(Mojo.Menu.viewMenu, {
-			//spacerHeight: 0,
-			//menuClass: 'no-fade'
-		},
+		this.controller.setupWidget(Mojo.Menu.viewMenu, null,
 		{
 			visible: true,
 			items: [{
@@ -22,10 +19,7 @@ TalksAssistant.prototype = {
 			]
 		});
 
-		this.controller.setupWidget(Mojo.Menu.commandMenu, {
-			spacerHeight: 0,
-			//menuClass: 'no-fade'
-		},
+		this.controller.setupWidget(Mojo.Menu.commandMenu, null,
 		{
 			visible: true,
 			items: [{},
@@ -57,11 +51,6 @@ TalksAssistant.prototype = {
 			items: [],
 			toggleCmd: "filter-locations-all"
 		});
-
-		this.controller.setupWidget("TalksScroller", {
-			mode: 'vertical'
-		},
-		{});
 
 		this.controller.setupWidget("TalksList", {
 			itemTemplate: "talks/talks-row-template",

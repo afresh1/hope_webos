@@ -225,7 +225,10 @@ var Talks = function() {
 		init: loadTalksDB,
 		search: searchList,
 		registerWatcher: registerWatcher,
-		setFilter: setFilter
+		setFilter: setFilter,
+		getFilter: function(name) {
+			return filters[name]
+		}
 	};
 };
 
