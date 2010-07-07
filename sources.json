@@ -3,7 +3,10 @@
         "source": "app/assistants/stage-assistant.js"
     },
     {
-        "source": "app/assistants/talk-assistant.js"
+        "source": "app/assistants/talks.js"
+    },
+    {
+        "source": "app/assistants/talk.js"
     },
     {
         "scenes": "talks",
