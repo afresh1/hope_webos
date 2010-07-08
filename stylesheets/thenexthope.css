@@ -1,5 +1,27 @@
 .talk-details {
-    color: grey;
+    color: lightgrey;
     font-size: small;
     text-align: right;
+}
+
+#mojo-scene-talks-scene-scroller {
+    background: url(../images/background1.jpg) center center no-repeat;
+}
+
+#mojo-scene-talk-scene-scroller {
+    background: url(../images/background3.jpg) center center no-repeat;
+}
+
+.favorite-icon {
+    float: left;
+    width: 40px;
+    height: 65px;
+    background: url(../images/fav_off.png) center center no-repeat;
+}
+
+.favorite-icon.is-favorite {
+    float: left;
+    width: 40px;
+    height: 65px;
+    background: url(../images/fav_on.png) center center no-repeat;
 }

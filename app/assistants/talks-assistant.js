@@ -38,17 +38,15 @@ TalksAssistant.prototype = {
 
 		this.controller.setupWidget(Mojo.Menu.commandMenu, null, {
 			visible: true,
-			items: [
-            {
-                toggleCmd: "filter-favorites-all",
-                items: [{
-                    iconPath: "images/checkmark.png",
-                    command: "filter-favorites"
-                }]
-            },
+			items: [{
+				toggleCmd: "filter-favorites-all",
+				items: [{
+					iconPath: "images/checkmark.png",
+					command: "filter-favorites"
+				}]
+			},
 			{
-				items: [
-				{
+				items: [{
 					label: "Days",
 					width: 128,
 					submenu: "days-menu"
@@ -86,12 +84,8 @@ TalksAssistant.prototype = {
 
 		this.talks.registerWatcher(this.updateList.bind(this));
 
-        this.listTapHandler = this.listTapHandler.bindAsEventListener(this);
-        Mojo.Event.listen(
-                this.controller.get("TalksList"),
-                Mojo.Event.listTap, 
-                this.listTapHandler
-        );
+		Mojo.Event.listen(
+		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
 	},
 
@@ -102,10 +96,12 @@ TalksAssistant.prototype = {
 		itemModel.setupWidget(this.controller);
 	},
 
-    listTapHandler: function(event) {
-        Mojo.Log.info("got list tap for item: ", event.item.id);
-        this.controller.stageController.pushScene("talk", event.item);
-    },
+	listTapHandler: function(event) {
+		Mojo.Log.info("got list tap for item: ", event.item.id);
+		if (!event.originalEvent.target.id) {
+			this.controller.stageController.pushScene("talk", event.item);
+		}
+	},
 
 	handleCommand: function(event) {
 		Mojo.Log.info("Got event " + event.type);

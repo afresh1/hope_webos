@@ -229,7 +229,7 @@ var Favorites = function() {
 
 		if (cookies) {
 			Mojo.Log.info("Loaded Cookies");
-                favorites = cookies.favorites;
+			favorites = cookies.favorites;
 		}
 		else {
 			Mojo.Log.info("no cookies");

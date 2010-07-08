@@ -21,27 +21,37 @@ var Talk = function(spec, favorite) {
 	d = new Date(that.timestamp * 1000);
 
 	that.widgetId = "talk-favorite-" + id;
+	that.widgets = [];
 
 	//Mojo.Log.info("Setup talk: ", id);
-
 	that.setupWidget = function(controller) {
 		//Mojo.Log.info("Setup widget talk-favorite: ", id);
 		//that.controller = controller;
+		var widget = controller.get(that.widgetId);
+		that.widgets.push(widget);
 
-		that.widget = controller.get(that.widgetId);
-		that.model = {
-			value: favorite.is(id)
-		};
+		if (favorite.is(id)) {
+			widget.addClassName("is-favorite");
+		}
 
-        controller.setupWidget(that.widget, {}, that.model);
-
-		Mojo.Event.listen(that.widget, Mojo.Event.propertyChange, favoriteChanged.bind(that));
+		Mojo.Event.listen(widget, Mojo.Event.tap, that.changeFavorite.bind(that));
 	},
 
-	favoriteChanged = function(propertyChangeEvent) {
-		Mojo.Log.info("PropertyChange: ", propertyChangeEvent.value);
+	that.changeFavorite = function() {
+		Mojo.Log.info("Changing Favorite: ", this.widgetId);
 
-		favorite.set(this.id, propertyChangeEvent.value);
+		var value = ! favorite.is(this.id);
+		favorite.set(this.id, value);
+
+		var i, widget;
+		for (i = 0; i < that.widgets.length; i += 1) {
+			if (value) {
+				this.widgets[i].addClassName("is-favorite");
+			}
+			else {
+				this.widgets[i].removeClassName("is-favorite");
+			}
+		}
 	};
 
 	//that.date = d.toUTCString();

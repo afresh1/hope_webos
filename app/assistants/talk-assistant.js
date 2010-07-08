@@ -42,17 +42,11 @@ TalkAssistant.prototype = {
 			items: this.talk.speakers
 		});
 
-		this.handleBioChange.bindAsEventListener(this);
+		this.handleBioChange = this.handleBioChange.bindAsEventListener(this);
 
 	},
 
-	cleanup: function() {
-		var i, listen;
-		for (i = 0; i < this.listeners.length; i += 0) {
-			listen = this.listeners[i];
-			this.controller.stopListening(listen.widget, listen.event, listen.handler);
-		}
-	},
+	cleanup: function() {},
 
 	renderSpeaker: function(listWidget, itemModel, itemNode) {
 		Mojo.Log.info("rendered: ", itemModel.index);
@@ -64,15 +58,7 @@ TalkAssistant.prototype = {
 		{
 			open: false
 		});
-
-		var listen = {
-			widget: button,
-			event: Mojo.Event.tap,
-			handler: this.handleBioChange
-		};
-		this.controller.listen(listen.widget, listen.event, listen.handler);
-
-		this.listeners.push(listen);
+		this.controller.listen(button, Mojo.Event.tap, this.handleBioChange);
 	},
 
 	handleBioChange: function(event) {
@@ -82,4 +68,3 @@ TalkAssistant.prototype = {
 
 	}
 };
-

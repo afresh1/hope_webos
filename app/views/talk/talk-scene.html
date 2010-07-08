@@ -1,18 +1,20 @@
-<div id="TalkScene" class="palm-scene palm-dark">
-    <div class="palm-page-header multi-line">
-        <div class="palm-page-header-wrapper">
-            <div class="left" id="favorite" x-mojo-element="CheckBox"></div>
-            <div id="title" class="title"></div>
-            <div class="talk-details">
-                <span id="day"></span>
-                <span id="hours"></span><span id="minutes"></span>
-                <span id="location"></span>
+<div id="TalkScene" class="scene-wrapper talk">
+    <div class="palm-scene">
+        <div class="palm-page-header multi-line">
+            <div class="palm-page-header-wrapper">
+                <div class="favorite-icon" id="favorite"></div>
+                <div id="title" class="title"></div>
+                <div class="subtitle">
+                    <span id="day"></span>
+                    <span id="hours"></span><span id="minutes"></span>
+                    <span id="location"></span>
+                </div>
             </div>
         </div>
+        <div class="palm-body-text">
+            <div id="description" class="palm-text"></div>
+        </div>
+        <div class="palm-body-title">Speakers</div>
+        <div id="SpeakerList" x-mojo-element="List"></div>
     </div>
-     <div class="palm-body-text">
-        <div id="description" class="palm-text"></div>
-    </div>
-     <div class="palm-body-title">Speakers</div>
-    <div id="SpeakerList" x-mojo-element="List"></div>
 </div>

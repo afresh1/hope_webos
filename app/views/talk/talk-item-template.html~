@@ -1,4 +1,4 @@
-<div>
+<div class="palm-dark">
     <div class="palm-row drawer-button" x-mojo-tap-highlight="momentary">
         <div class="palm-row-wrapper">
             <div class="title">

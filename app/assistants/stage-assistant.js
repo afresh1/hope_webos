@@ -17,11 +17,13 @@
 function StageAssistant() {
 	/* this is the creator function for your stage assistant object */
 	this.talks = new Talks();
-    this.talks.favorite = new Favorites();
+	this.talks.favorite = new Favorites();
 }
 
 StageAssistant.prototype.setup = function() {
 	/* this function is for setup tasks that have to happen when the stage is first created */
+
+	$$('body')[0].addClassName('palm-dark');
 
 	/* for a simple application, the stage assistant's only task is to push the scene, making it
 	   visible */
