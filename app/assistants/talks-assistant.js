@@ -38,12 +38,16 @@ TalksAssistant.prototype = {
 
 		this.controller.setupWidget(Mojo.Menu.commandMenu, null, {
 			visible: true,
-			items: [{},
+			items: [
+            {
+                toggleCmd: "filter-favorites-all",
+                items: [{
+                    iconPath: "images/checkmark.png",
+                    command: "filter-favorites"
+                }]
+            },
 			{
-				items: [{
-					iconPath: "images/checkmark.png",
-					command: "filter-favorites"
-				},
+				items: [
 				{
 					label: "Days",
 					width: 128,
