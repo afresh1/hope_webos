@@ -19,8 +19,9 @@ function TalksAssistant(talks) {
 }
 
 TalksAssistant.prototype = {
-	favoriteModels: {},
 	setup: function() {
+		Mojo.Log.info("Setup TalksAssistant");
+
 		this.controller.setupWidget(Mojo.Menu.viewMenu, null, {
 			visible: true,
 			items: [{
@@ -84,7 +85,10 @@ TalksAssistant.prototype = {
 
 	cleanup: function() {},
 
-	renderTalk: function(listWidget, itemModel, itemNode) {},
+	renderTalk: function(listWidget, itemModel, itemNode) {
+		//Mojo.Log.info("rendered: ", itemModel.id);
+		itemModel.setupWidget(this.controller);
+	},
 
 	handleCommand: function(event) {
 		Mojo.Log.info("Got event " + event.type);
@@ -114,6 +118,7 @@ TalksAssistant.prototype = {
 			}
 		}
 	},
+
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
 		var i, j, available, modelName, menu, command, list
@@ -145,7 +150,6 @@ TalksAssistant.prototype = {
 
 			Mojo.Log.info("modelChanged: ", modelName);
 			//this.controller.modelChanged(this[modelName], this);
-
 		}
 
 	}

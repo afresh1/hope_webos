@@ -1,9 +1,9 @@
 /*
  * Copyright (c) 2010 Andrew Fresh <andrew@afresh1.com>
  *
- * Permission to use, copy, modify, and distribute this software for any
+ * Permission to use, copy, modify, and distribute that software for any
  * purpose with or without fee is hereby granted, provided that the above
- * copyright notice and this permission notice appear in all copies.
+ * copyright notice and that permission notice appear in all copies.
  *
  * THE SOFTWARE IS PROVIDED "AS IS" AND THE AUTHOR DISCLAIMS ALL WARRANTIES
  * WITH REGARD TO THIS SOFTWARE INCLUDING ALL IMPLIED WARRANTIES OF
@@ -15,33 +15,39 @@
  */
 
 var Talk = function(spec, talks) {
-	var that = spec;
-	var id = that.id;
-	var day_names = Mojo.Locale.getDayNames();
-	var d = new Date(t.timestamp * 1000);
+	var that = spec,
+	id = that.id,
+	day_names = Mojo.Locale.getDayNames(),
+	d = new Date(that.timestamp * 1000),
+	widget = "talk-favorite-" + id;
 
-	Mojo.Log.info("Setup talk: ", id);
-
-	setupTalkWidget = function(controller) {
-		Mojo.Log.info("Setup widget talk-favorite: ", id);
-		controller.setupWidget("talk-favorite-" + id, null, {
-			value: true //this.talks.favorite.is(id)
-		});
-
-		//controller.listen("talk-favorite-" + id, Mojo.Event.propertyChange, this.favoriteChanged.bindAsEventListener(this));
-	},
-
-	favoriteChanged;
-	function(propertyChangeEvent) {
-		Mojo.Log.info("The checkbox (" + propertyChangeEvent.property + ") has changed to " + propertyChangeEvent.value + " which is the same as in my model " + this.model.value);
+	that.model = {
+		value: false
 	};
 
-	//if (this.favoriteModels[j]) {
-	//this.favoriteModels[j].value = this.talks.favorite.is(j);
-	//this.controller.modelChanged(this.favoriteModels[j]);
-	//}
+	//that.favorite = talks.favorite.is( id );
+	Mojo.Log.info("Setup talk: ", id);
+
+	that.setupWidget = function(controller) {
+		//Mojo.Log.info("Setup widget talk-favorite: ", id);
+		that.controller = controller;
+
+		that.widget = that.controller.get(widget);
+		that.model.value = true; //talks.favorite.is(id);
+		that.controller.setupWidget(that.widget, {},
+		that.model);
+
+		Mojo.Event.listen(that.widget, Mojo.Event.propertyChange, favoriteChanged.bind(that));
+	},
+
+	favoriteChanged = function(propertyChangeEvent) {
+		Mojo.Log.info("PropertyChange: ", propertyChangeEvent.value);
+
+		talks.favorite.set(this.id, propertyChangeEvent.value);
+	};
+
 	//that.date = d.toUTCString();
-	that.day = this.day_names[d.getUTCDay()];
+	that.day = day_names[d.getUTCDay()];
 	that.hours = d.getUTCHours();
 	if (that.hours < 10) {
 		that.hours = "0" + that.hours;

@@ -80,17 +80,24 @@ var Talks = function() {
 
 		if (Object.toJSON(tl) == "[]" || tl === null) {
 			Mojo.Log.info("Retrieved empty or null list");
-			featureIndexFeed = 0;
 			getList(); // XXX dangerous!
 		} else {
 			Mojo.Log.info("updating talksList");
+
+			db.simpleAdd("talksList", tl, function() {
+				Mojo.Log.info("talksList saved OK");
+			},
+			function(transaction, result) {
+				Mojo.Log.warn("Database save error (#", result.message, ") - can't save talksList. Will need to reload on next use.");
+				Mojo.Controller.errorDialog("Database save error (#" + result.message + ") - can't save talksList. Will need to reload on next use.");
+			});
 
 			talksList.full = [];
 			talksList.days = {};
 			talksList.locations = {};
 
 			for (i = 0; i < tl.length; i += 1) {
-				talk = new Talk(tl[i], this)
+				talk = new Talk(tl[i], self)
 
 				talksList.days[talk.day] = true;
 				talksList.locations[talk.location] = true;
@@ -100,14 +107,6 @@ var Talks = function() {
 
 			applyFilters();
 			notifyWatchers();
-
-			db.simpleAdd("talksList", tl, function() {
-				Mojo.Log.info("talksList saved OK");
-			},
-			function(transaction, result) {
-				Mojo.Log.warn("Database save error (#", result.message, ") - can't save talksList. Will need to reload on next use.");
-				Mojo.Controller.errorDialog("Database save error (#" + result.message + ") - can't save talksList. Will need to reload on next use.");
-			});
 		}
 	},
 
@@ -162,7 +161,8 @@ var Talks = function() {
 		var i, c;
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
-			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || this.Favorites.is(c.id))
+
+			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))
 			// XXX add favorite filter
 			) {
 				subset.push(c);
@@ -174,13 +174,13 @@ var Talks = function() {
 	},
 
 	setFilter = function(name, value) {
-		Mojo.Log.info("setFilter: ", name, " to ", value);
 		if (value === "all") {
 			value = false;
 		}
 		if (name === "favorites") {
 			value = ! filters[name];
 		}
+		Mojo.Log.info("setFilter: ", name, " to ", value);
 		filters[name] = value;
 		applyFilters();
 	},
@@ -195,45 +195,9 @@ var Talks = function() {
 		}
 	},
 
-	Favorites = function() {
-		var cookieData, favorites = {},
+	loadTalksDB();
 
-		setup = function() {
-			Mojo.Log.info("Loading favorite cookies");
-			cookieData = new Mojo.Model.Cookie("talksFavorites");
-			var cookies = cookieData.get();
-			if (cookies) {
-				favorites = cookies.favorites;
-			}
-
-			storeCookie();
-		},
-
-		storeCookie = function() {
-			Mojo.Log.info("Saving some cookies for later");
-			cookieData.put({
-				favorites: favorites
-			});
-		},
-
-		isFavorite = function(id) {
-			return favorites[id];
-		},
-
-		setFavorite = function(id, value) {
-			Mojo.Log.info("Favorite: ", id, " is being set to ", value);
-			favorites[id] = value;
-			storeCookie();
-		};
-
-		return {
-			setup: setup,
-			is: isFavorite,
-			set: setFavorite
-		}
-	} ();
-
-	return {
+	var self = {
 		list: returnList,
 		days: function() {
 			return returnListItems("days")
@@ -242,16 +206,61 @@ var Talks = function() {
 			return returnListItems("locations")
 		},
 		refresh: getList,
-		setup: function() {
-			loadTalksDB();
-			Favorites.setup();
-		},
 		search: searchList,
 		registerWatcher: registerWatcher,
 		setFilter: setFilter,
 		getFilter: function(name) {
 			return filters[name]
 		},
-		favorite: Favorites
+		favorite: new Favorites()
 	};
+
+	return self;
 };
+
+var Favorites = function() {
+	Mojo.Log.info("Init favorite cookies");
+
+	var favorites = {};
+
+	var cookieData = new Mojo.Model.Cookie("favoriteTalks"),
+
+	loadCookie = function() {
+		var cookies = cookieData.get();
+
+		if (cookies) {
+			Mojo.Log.info("Loaded Cookies");
+			favorites = cookies.favorites;
+		}
+		else {
+			Mojo.Log.info("no cookies");
+			storeCookie();
+		}
+	},
+
+	storeCookie = function() {
+		Mojo.Log.info("Saving some cookies for later");
+		cookieData.put({
+			favorites: favorites
+		});
+	},
+
+	isFavorite = function(id) {
+		//Mojo.Log.info("Favorite: ", id, " is ", favorites[id]);
+		return favorites[id];
+	},
+
+	setFavorite = function(id, value) {
+		Mojo.Log.info("Favorite: ", id, " is being set to ", value);
+		favorites[id] = value;
+		storeCookie();
+	};
+
+	loadCookie();
+
+	return {
+		is: isFavorite,
+		set: setFavorite,
+	}
+};
+
