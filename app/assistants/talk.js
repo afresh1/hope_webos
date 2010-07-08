@@ -14,25 +14,26 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-var Talk = function(spec, talks) {
+var Talk = function(spec, favorite) {
 	var that = spec,
 	id = that.id,
 	day_names = Mojo.Locale.getDayNames(),
-	d = new Date(that.timestamp * 1000),
-	widget = "talk-favorite-" + id;
+	d = new Date(that.timestamp * 1000);
 
-	Mojo.Log.info("Setup talk: ", id);
+	that.widgetId = "talk-favorite-" + id;
+
+	//Mojo.Log.info("Setup talk: ", id);
 
 	that.setupWidget = function(controller) {
 		//Mojo.Log.info("Setup widget talk-favorite: ", id);
 		//that.controller = controller;
 
-		that.widget = controller.get(widget);
+		that.widget = controller.get(that.widgetId);
 		that.model = {
-			value: talks.favorite.is(id)
+			value: favorite.is(id)
 		};
 
-        controller.setWidgetModel(that.widget, {}, that.model);
+        controller.setupWidget(that.widget, {}, that.model);
 
 		Mojo.Event.listen(that.widget, Mojo.Event.propertyChange, favoriteChanged.bind(that));
 	},
@@ -40,7 +41,7 @@ var Talk = function(spec, talks) {
 	favoriteChanged = function(propertyChangeEvent) {
 		Mojo.Log.info("PropertyChange: ", propertyChangeEvent.value);
 
-		talks.favorite.set(this.id, propertyChangeEvent.value);
+		favorite.set(this.id, propertyChangeEvent.value);
 	};
 
 	//that.date = d.toUTCString();

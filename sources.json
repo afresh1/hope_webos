@@ -9,6 +9,10 @@
         "source": "app/assistants/talk.js"
     },
     {
+        "scenes": "talk",
+        "source": "app/assistants/talk-assistant.js"
+    },
+    {
         "scenes": "talks",
         "source": "app/assistants/talks-assistant.js"
     }

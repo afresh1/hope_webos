@@ -73,7 +73,7 @@ TalksAssistant.prototype = {
 		});
 
 		this.controller.setupWidget("TalksList", {
-			itemTemplate: "talks/talks-row-template",
+			itemTemplate: "talks/talks-item-template",
 			listTemplate: "talks/talks-list-template",
 			swipeToDelete: false,
 			reordarable: false,
@@ -85,6 +85,14 @@ TalksAssistant.prototype = {
 		});
 
 		this.talks.registerWatcher(this.updateList.bind(this));
+
+        this.listTapHandler = this.listTapHandler.bindAsEventListener(this);
+        Mojo.Event.listen(
+                this.controller.get("TalksList"),
+                Mojo.Event.listTap, 
+                this.listTapHandler
+        );
+
 	},
 
 	cleanup: function() {},
@@ -93,6 +101,11 @@ TalksAssistant.prototype = {
 		//Mojo.Log.info("rendered: ", itemModel.id);
 		itemModel.setupWidget(this.controller);
 	},
+
+    listTapHandler: function(event) {
+        Mojo.Log.info("got list tap for item: ", event.item.id);
+        this.controller.stageController.pushScene("talk", event.item);
+    },
 
 	handleCommand: function(event) {
 		Mojo.Log.info("Got event " + event.type);

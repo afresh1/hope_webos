@@ -97,7 +97,7 @@ var Talks = function() {
 			talksList.locations = {};
 
 			for (i = 0; i < tl.length; i += 1) {
-				talk = new Talk(tl[i], self)
+				talk = new Talk(tl[i], self.favorite)
 
 				talksList.days[talk.day] = true;
 				talksList.locations[talk.location] = true;
@@ -212,7 +212,6 @@ var Talks = function() {
 		getFilter: function(name) {
 			return filters[name]
 		},
-		favorite: new Favorites()
 	};
 
 	return self;
@@ -230,7 +229,7 @@ var Favorites = function() {
 
 		if (cookies) {
 			Mojo.Log.info("Loaded Cookies");
-			favorites = cookies.favorites;
+                favorites = cookies.favorites;
 		}
 		else {
 			Mojo.Log.info("no cookies");

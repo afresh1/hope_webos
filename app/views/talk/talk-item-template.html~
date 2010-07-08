@@ -1,0 +1,18 @@
+<div>
+    <div class="palm-row drawer-button" x-mojo-tap-highlight="momentary">
+        <div class="palm-row-wrapper">
+            <div class="title">
+                <span x-mojo-loc="">#{-name}</span>
+            </div>
+        </div>
+    </div>
+    <div class="drawer" x-mojo-element="Drawer">
+        <div class="palm-row drawer-button">
+            <div class="palm-row-wrapper">
+                <div class="palm-info-text">
+                    <span x-mojo-loc="">#{-bio}</span>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
