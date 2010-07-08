@@ -21,21 +21,18 @@ var Talk = function(spec, talks) {
 	d = new Date(that.timestamp * 1000),
 	widget = "talk-favorite-" + id;
 
-	that.model = {
-		value: false
-	};
-
-	//that.favorite = talks.favorite.is( id );
 	Mojo.Log.info("Setup talk: ", id);
 
 	that.setupWidget = function(controller) {
 		//Mojo.Log.info("Setup widget talk-favorite: ", id);
-		that.controller = controller;
+		//that.controller = controller;
 
-		that.widget = that.controller.get(widget);
-		that.model.value = true; //talks.favorite.is(id);
-		that.controller.setupWidget(that.widget, {},
-		that.model);
+		that.widget = controller.get(widget);
+		that.model = {
+			value: talks.favorite.is(id)
+		};
+
+        controller.setWidgetModel(that.widget, {}, that.model);
 
 		Mojo.Event.listen(that.widget, Mojo.Event.propertyChange, favoriteChanged.bind(that));
 	},
