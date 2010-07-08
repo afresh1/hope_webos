@@ -28,7 +28,6 @@ var Talks = function() {
 	},
 	db,
 	updateWatchers = [];
-	searchFilter = '',
 
 	returnList = function() {
 		return talksList.filtered;
@@ -106,7 +105,6 @@ var Talks = function() {
 			}
 
 			applyFilters();
-			notifyWatchers();
 		}
 	},
 
@@ -143,20 +141,18 @@ var Talks = function() {
 			i++;
 		}
 
-		//update the items in the list with the subset
+		Mojo.Log.info("calling noticeUpdatedItems: offset=" + offset + " result count=" + subset.length + " size=" + totalSubsetSize + " items=" + subset.toJSON());
+		// Explanations of a lot of these are in the list widget's docs
 		listWidget.mojo.noticeUpdatedItems(offset, subset);
 
-		//set the list's length & count if we're not repeating the same filter string from an earlier pass
-		if (searchFilter !== fs) {
-			listWidget.mojo.setLength(totalSubsetSize);
-			listWidget.mojo.setCount(totalSubsetSize);
-		}
-		searchFilter = fs;
+		//set the list's length & count
+		listWidget.mojo.setLength(totalSubsetSize);
+		listWidget.mojo.setCount(totalSubsetSize);
 	},
 
 	applyFilters = function() {
 		Mojo.Log.info("Applying Filters");
-		var subset = [];
+		talksList.filtered = [];
 
 		var i, c;
 		for (i = 0; i < talksList.full.length; i += 1) {
@@ -165,11 +161,10 @@ var Talks = function() {
 			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))
 			// XXX add favorite filter
 			) {
-				subset.push(c);
+				talksList.filtered.push(c);
 			}
 		}
 
-		talksList.filtered = subset;
 		notifyWatchers();
 	},
 
