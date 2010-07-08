@@ -16,8 +16,7 @@
 
 function StageAssistant() {
 	/* this is the creator function for your stage assistant object */
-	this.talks = Talks();
-	this.talks.setup();
+	this.talks = new Talks();
 }
 
 StageAssistant.prototype.setup = function() {

@@ -15,8 +15,7 @@
  */
 
 var Talks = function() {
-	var that = this,
-	talksList = {
+	var talksList = {
 		full: [],
 		filtered: [],
 		days: {},
@@ -34,6 +33,7 @@ var Talks = function() {
 	returnList = function() {
 		return talksList.filtered;
 	},
+
 	returnListItems = function(key) {
 		Mojo.Log.info("returnListItems: ", key);
 		var items = [];
@@ -48,8 +48,8 @@ var Talks = function() {
 		items.sort();
 		return items;
 	},
+
 	getList = function(updateList) {
-		var that = this;
 		var url = "http://www.thenexthope.org/hope_schedule/json.php";
 
 		Mojo.Log.info("Retrieving new talksList from ", url);
@@ -90,13 +90,12 @@ var Talks = function() {
 			talksList.locations = {};
 
 			for (i = 0; i < tl.length; i += 1) {
-                talk = new TalkAssistant( tl[i], this )
-                talk.setup();
+				talk = new Talk(tl[i], this)
 
-				talksList.days[talk.details.day] = true;
-				talksList.locations[talk.details.location] = true;
+				talksList.days[talk.day] = true;
+				talksList.locations[talk.location] = true;
 
-                talksList.full.push(talk);
+				talksList.full.push(talk);
 			}
 
 			applyFilters();
@@ -136,7 +135,7 @@ var Talks = function() {
 		//loop through the original data set & get the subset of items that have the filterstring 
 		var i = 0;
 		while (i < talksList.filtered.length) {
-			if (talksList.filtered[i].details.searchable.include(fs)) {
+			if (talksList.filtered[i].searchable.include(fs)) {
 				if (subset.length < count && totalSubsetSize >= offset) {
 					subset.push(talksList.filtered[i]);
 				}
@@ -163,9 +162,7 @@ var Talks = function() {
 		var i, c;
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
-			if ( (!filters.days || filters.days === c.details.day.toLowerCase()) 
-              && (!filters.locations || filters.locations === c.details.location.toLowerCase())
-              && (!filters.favorites || this.Favorites.is(c.details.id) )
+			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || this.Favorites.is(c.id))
 			// XXX add favorite filter
 			) {
 				subset.push(c);
@@ -230,7 +227,7 @@ var Talks = function() {
 		};
 
 		return {
-            setup: setup,
+			setup: setup,
 			is: isFavorite,
 			set: setFavorite
 		}
