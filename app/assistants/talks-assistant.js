@@ -22,7 +22,10 @@ TalksAssistant.prototype = {
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
-		this.controller.setupWidget(Mojo.Menu.viewMenu, null, {
+		this.controller.setupWidget(Mojo.Menu.viewMenu, {
+menuClass: 'no-fade',
+		},
+		{
 			visible: true,
 			items: [{
 				label: "The Next HOPE",
@@ -36,12 +39,15 @@ TalksAssistant.prototype = {
 			]
 		});
 
-		this.controller.setupWidget(Mojo.Menu.commandMenu, null, {
+		this.controller.setupWidget(Mojo.Menu.commandMenu, {
+			menuClass: 'no-fade',
+		},
+		{
 			visible: true,
 			items: [{
 				toggleCmd: "filter-favorites-all",
 				items: [{
-					iconPath: "images/checkmark.png",
+					iconPath: "images/fav_filter.png",
 					command: "filter-favorites"
 				}]
 			},
