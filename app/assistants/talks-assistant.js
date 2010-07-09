@@ -75,6 +75,13 @@ TalksAssistant.prototype = {
 			toggleCmd: "filter-locations-all"
 		});
 
+		this.controller.setupWidget("refresh-spinner", {
+			spinnerSize: Mojo.Widget.spinnerLarge
+		},
+		{
+			spinning: true
+		});
+
 		this.controller.setupWidget("TalksList", {
 			itemTemplate: "talks/talks-item-template",
 			listTemplate: "talks/talks-list-template",
@@ -84,7 +91,7 @@ TalksAssistant.prototype = {
 			onItemRendered: this.renderTalk.bind(this)
 		},
 		this.filterListModel = {
-			items: this.talks.list()
+			items: this.talks.list
 		});
 
 		this.talks.registerWatcher(this.updateList.bind(this));
@@ -99,10 +106,9 @@ TalksAssistant.prototype = {
 		this.controller.stopListening(
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
-		var list = this.talks.list();
 		var i;
-		for (i = 0; i < list.length; i += 1) {
-			list[i].cleanup();
+		for (i = 0; i < this.talks.list.length; i += 1) {
+			this.talks.list[i].cleanup();
 		}
 
 	},
@@ -138,6 +144,8 @@ TalksAssistant.prototype = {
 				switch (event.command) {
 				case "do-refresh":
 					{
+						this.controller.get("refresh-spinner").mojo.start();
+						this.controller.get("refresh-scrim").show();
 						this.talks.refresh();
 						break
 					};
@@ -150,11 +158,10 @@ TalksAssistant.prototype = {
 
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
-		var i, j, available, modelName, menu, command, list
-		menus = ["days", "locations"],
-		list = this.talks.list();
+		var i, j, available, modelName, menu, command, menus = ["days", "locations"];
 
-		this.filterListModel.items = list;
+		// XXX This seems to get called after the search's noticeUpdatedItems
+		// XXX I don't know how to know that, or if it is even wrong.
 		this.controller.modelChanged(this.filterListModel, this);
 
 		for (i = 0; i < menus.length; i += 1) {
@@ -178,6 +185,8 @@ TalksAssistant.prototype = {
 			}
 		}
 
+		this.controller.get("refresh-scrim").hide();
+		this.controller.get("refresh-spinner").mojo.stop();
 	}
 };
 

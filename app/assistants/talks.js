@@ -29,12 +29,8 @@ var Talks = function() {
 	db,
 	updateWatchers = [];
 
-	returnList = function() {
-		return talksList.filtered;
-	},
-
 	returnListItems = function(key) {
-		Mojo.Log.info("returnListItems: ", key);
+		Mojo.Log.info("returnListItems:", key);
 		var items = [];
 		var name;
 		if (talksList[key]) {
@@ -62,7 +58,7 @@ var Talks = function() {
 			onComplete: function(transport) {
 				var talks = transport.responseJSON;
 				Mojo.Log.info("got talksList");
-				updateTalksDB(talks);
+				updateTalks(talks);
 			},
 			onFailure: function(transport) {
 				// XXX not sure why this doesn't even log
@@ -73,8 +69,8 @@ var Talks = function() {
 		});
 	},
 
-	updateTalksDB = function(tl) {
-		Mojo.Log.info("database size: ", Object.values(tl).size());
+	updateTalks = function(tl) {
+		Mojo.Log.info("database size:", Object.values(tl).size());
 		var i, talk;
 
 		if (Object.toJSON(tl) == "[]" || tl === null) {
@@ -116,11 +112,11 @@ var Talks = function() {
 		});
 
 		if (!db) {
-			Mojo.Log.warn("Can't open talksDB database: ", result);
+			Mojo.Log.warn("Can't open talksDB database:", result);
 		}
 		else {
 			Mojo.Log.info("Talks Database opened OK");
-			db.simpleGet("talksList", updateTalksDB, getList);
+			db.simpleGet("talksList", updateTalks, getList);
 		}
 	},
 
@@ -141,7 +137,7 @@ var Talks = function() {
 			i++;
 		}
 
-		Mojo.Log.info("calling noticeUpdatedItems: offset=" + offset + " result count=" + subset.length + " size=" + totalSubsetSize + " items=" + subset.toJSON());
+		Mojo.Log.info("calling noticeUpdatedItems: offset=" + offset + " result count=" + subset.length + " totalSubsetSize=" + totalSubsetSize + " items=" + subset.toJSON());
 		// Explanations of a lot of these are in the list widget's docs
 		listWidget.mojo.noticeUpdatedItems(offset, subset);
 
@@ -152,20 +148,20 @@ var Talks = function() {
 
 	applyFilters = function() {
 		Mojo.Log.info("Applying Filters");
-		talksList.filtered = [];
+		talksList.filtered.length = 0;
 
 		var i, c;
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
 
-			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))
-			// XXX add favorite filter
-			) {
+			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))) {
 				talksList.filtered.push(c);
 			}
 		}
 
-		notifyWatchers();
+		for (i = 0; i < updateWatchers.length; i += 1) {
+			updateWatchers[i]();
+		}
 	},
 
 	setFilter = function(name, value) {
@@ -175,7 +171,7 @@ var Talks = function() {
 		if (name === "favorites") {
 			value = ! filters[name];
 		}
-		Mojo.Log.info("setFilter: ", name, " to ", value);
+		Mojo.Log.info("setFilter:", name, " to ", value);
 		filters[name] = value;
 		applyFilters();
 	},
@@ -184,16 +180,10 @@ var Talks = function() {
 		updateWatchers.push(callback);
 	},
 
-	notifyWatchers = function() {
-		for (i = 0; i < updateWatchers.length; i += 1) {
-			updateWatchers[i]();
-		}
-	},
-
 	loadTalksDB();
 
 	var self = {
-		list: returnList,
+		list: talksList.filtered,
 		days: function() {
 			return returnListItems("days")
 		},
@@ -240,12 +230,12 @@ var Favorites = function() {
 	},
 
 	isFavorite = function(id) {
-		//Mojo.Log.info("Favorite: ", id, " is ", favorites[id]);
+		//Mojo.Log.info("Favorite:", id, " is ", favorites[id]);
 		return favorites[id];
 	},
 
 	setFavorite = function(id, value) {
-		Mojo.Log.info("Favorite: ", id, " is being set to ", value);
+		Mojo.Log.info("Favorite:", id, " is being set to ", value);
 		favorites[id] = value;
 		storeCookie();
 	};
