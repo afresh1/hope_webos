@@ -38,23 +38,6 @@ TalksAssistant.prototype = {
 			Mojo.Menu.helpItem]
 		});
 
-		this.controller.setupWidget(Mojo.Menu.viewMenu, {
-			menuClass: 'no-fade',
-		},
-		{
-			visible: true,
-			items: [{
-				label: "The Next HOPE",
-				width: 256
-			},
-			{},
-			{
-				icon: "refresh",
-				command: "do-refresh"
-			},
-			]
-		});
-
 		this.controller.setupWidget(Mojo.Menu.commandMenu, {
 			menuClass: 'no-fade',
 		},

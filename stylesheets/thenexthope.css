@@ -12,6 +12,13 @@
     background: url(../images/background3.jpg) center center no-repeat;
 }
 
+.hope-icon {
+    float: left;
+    width: 58px;
+    height: 58px;
+    background: url(../icon_32x32.png) center center no-repeat;
+}
+
 .favorite-icon {
     float: left;
     width: 40px;
