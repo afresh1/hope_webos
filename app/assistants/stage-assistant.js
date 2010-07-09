@@ -16,10 +16,8 @@
 
 function StageAssistant() {
 	/* this is the creator function for your stage assistant object */
-	this.talks = new Talks();
-	this.talks.favorite = new Favorites();
-}
 
+}
 StageAssistant.prototype.setup = function() {
 	/* this function is for setup tasks that have to happen when the stage is first created */
 
@@ -27,5 +25,22 @@ StageAssistant.prototype.setup = function() {
 
 	/* for a simple application, the stage assistant's only task is to push the scene, making it
 	   visible */
-	this.controller.pushScene("talks", this.talks);
+	this.controller.pushScene("talks");
 };
+
+// handleCommand - Setup handlers for menus:
+//
+StageAssistant.prototype.handleCommand = function(event) {
+	// var currentScene = this.controller.activeScene();
+	if (event.type == Mojo.Event.commandEnable && event.command == Mojo.Menu.helpCmd) {
+		event.stopPropagation(); // kill the disable event
+	}
+	else if (event.type == Mojo.Event.command) {
+		switch (event.command) {
+		case 'palm-help-cmd':
+			this.controller.pushAppSupportInfoScene();
+			break;
+		}
+	}
+};
+

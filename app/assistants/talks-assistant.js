@@ -14,16 +14,32 @@
  * OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.
  */
 
-function TalksAssistant(talks) {
-	this.talks = talks;
+function TalksAssistant() {
+	this.talks = new Talks();
+	this.talks.favorite = new Favorites();
 }
 
 TalksAssistant.prototype = {
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
+		this.controller.setupWidget(
+		Mojo.Menu.appMenu, {
+			omitDefaultItems: true
+		},
+		{
+			visible: true,
+			items: [
+			Mojo.Menu.editItem, {
+				label: "Refresh talks",
+				command: "do-refresh"
+			},
+			//Mojo.Menu.prefsItem,
+			Mojo.Menu.helpItem]
+		});
+
 		this.controller.setupWidget(Mojo.Menu.viewMenu, {
-menuClass: 'no-fade',
+			menuClass: 'no-fade',
 		},
 		{
 			visible: true,
@@ -34,7 +50,7 @@ menuClass: 'no-fade',
 			{},
 			{
 				icon: "refresh",
-				command: "do-Refresh"
+				command: "do-refresh"
 			},
 			]
 		});
@@ -126,7 +142,7 @@ menuClass: 'no-fade',
 			}
 			else {
 				switch (event.command) {
-				case "do-Refresh":
+				case "do-refresh":
 					{
 						this.talks.refresh();
 						break

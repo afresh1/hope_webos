@@ -23,6 +23,18 @@ TalkAssistant.prototype = {
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
+		this.controller.setupWidget(
+		Mojo.Menu.appMenu, {
+			omitDefaultItems: true
+		},
+		{
+			visible: true,
+			items: [
+			Mojo.Menu.editItem,
+			//Mojo.Menu.prefsItem,
+			Mojo.Menu.helpItem]
+		});
+
 		var i, fields = ['title', 'day', 'hours', 'minutes', 'location', 'description'];
 		for (i = 0; i < fields.length; i += 1) {
 			this.controller.get(fields[i]).update(this.talk[fields[i]]);
@@ -68,3 +80,4 @@ TalkAssistant.prototype = {
 
 	}
 };
+
