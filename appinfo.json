@@ -19,6 +19,11 @@
                 "type": "web",
                 "label": "Github Repository",
                 "url": "http://github.com/afresh1/hope_webos"
+            },
+            {
+                "type": "web",
+                "label": "Discussion thread on forum.hope.net",
+                "url": "http://talk.hope.net/viewtopic.php?id=4627"
             }
         ]
     }
