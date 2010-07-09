@@ -58,11 +58,15 @@ TalkAssistant.prototype = {
 
 	},
 
-	cleanup: function() {},
+	cleanup: function() {
+		Mojo.Log.info("Cleanup talk-assistant");
+		var i;
+		for (i = 0; i < this.listeners.length; i += 1) {
+			this.controller.stopListening(this.listeners[i], Mojo.Event.tap, this.handleBioChange);
+		}
+	},
 
 	renderSpeaker: function(listWidget, itemModel, itemNode) {
-		Mojo.Log.info("rendered: ", itemModel.index);
-
 		var drawer = itemNode.down('div.drawer');
 		var button = itemNode.down('div.drawer-button');
 
@@ -71,6 +75,7 @@ TalkAssistant.prototype = {
 			open: false
 		});
 		this.controller.listen(button, Mojo.Event.tap, this.handleBioChange);
+		this.listeners.push(button);
 	},
 
 	handleBioChange: function(event) {

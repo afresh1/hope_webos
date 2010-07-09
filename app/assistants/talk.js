@@ -23,36 +23,46 @@ var Talk = function(spec, favorite) {
 	that.widgetId = "talk-favorite-" + id;
 	that.widgets = [];
 
-	//Mojo.Log.info("Setup talk: ", id);
+	//Mojo.Log.info("Setup talk:", id);
 	that.setupWidget = function(controller) {
-		//Mojo.Log.info("Setup widget talk-favorite: ", id);
-		//that.controller = controller;
+		//Mojo.Log.info("Setup widget talk-favorite:", id);
 		var widget = controller.get(that.widgetId);
-		that.widgets.push(widget);
+		that.widgets.push({
+			widget: widget,
+			controller: controller
+		});
 
 		if (favorite.is(id)) {
 			widget.addClassName("is-favorite");
 		}
 
-		Mojo.Event.listen(widget, Mojo.Event.tap, that.changeFavorite.bind(that));
+		controller.listen(widget, Mojo.Event.tap, that.changeFavorite);
 	},
 
+	that.cleanup = function() {
+		//Mojo.Log.info("Cleanup talk:", this.id);
+		var i;
+		for (i = 0; i < this.widgets.length; i += 1) {
+			this.widgets[i].controller.stopListening(this.widgets[i].widget, Mojo.Event.tap, this.changeFavorite);
+		}
+	}.bind(that),
+
 	that.changeFavorite = function() {
-		Mojo.Log.info("Changing Favorite: ", this.widgetId);
+		Mojo.Log.info("Changing Favorite:", this.widgetId);
 
 		var value = ! favorite.is(this.id);
 		favorite.set(this.id, value);
 
 		var i, widget;
-		for (i = 0; i < that.widgets.length; i += 1) {
+		for (i = 0; i < this.widgets.length; i += 1) {
 			if (value) {
-				this.widgets[i].addClassName("is-favorite");
+				this.widgets[i].widget.addClassName("is-favorite");
 			}
 			else {
-				this.widgets[i].removeClassName("is-favorite");
+				this.widgets[i].widget.removeClassName("is-favorite");
 			}
 		}
-	};
+	}.bind(that);
 
 	//that.date = d.toUTCString();
 	that.day = day_names[d.getUTCDay()];

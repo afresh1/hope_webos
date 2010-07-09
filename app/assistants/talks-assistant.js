@@ -106,20 +106,31 @@ TalksAssistant.prototype = {
 
 		this.talks.registerWatcher(this.updateList.bind(this));
 
-		Mojo.Event.listen(
+		this.controller.listen(
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
 	},
 
-	cleanup: function() {},
+	cleanup: function() {
+		Mojo.Log.info("Cleanup talks-assistant");
+		this.controller.stopListening(
+		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
+
+		var list = this.talks.list();
+		var i;
+		for (i = 0; i < list.length; i += 1) {
+			list[i].cleanup();
+		}
+
+	},
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
-		//Mojo.Log.info("rendered: ", itemModel.id);
+		//Mojo.Log.info("rendered:", itemModel.id);
 		itemModel.setupWidget(this.controller);
 	},
 
 	listTapHandler: function(event) {
-		Mojo.Log.info("got list tap for item: ", event.item.id);
+		Mojo.Log.info("got list tap for item:", event.item.id);
 		if (!event.originalEvent.target.id) {
 			this.controller.stageController.pushScene("talk", event.item);
 		}
@@ -182,9 +193,6 @@ TalksAssistant.prototype = {
 					})
 				}
 			}
-
-			Mojo.Log.info("modelChanged: ", modelName);
-			//this.controller.modelChanged(this[modelName], this);
 		}
 
 	}
