@@ -111,7 +111,9 @@ TalksAssistant.prototype = {
 	},
 
 	activate: function() {
-		this.talks.setFilter();
+        // XXX for some reason, items that are collapsed away don't keep 
+        // XXX their favorite icon if we do this.
+		//this.talks.setFilter();
 	},
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
