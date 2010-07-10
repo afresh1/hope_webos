@@ -9,16 +9,21 @@
     "smallicon": "icon_32x32.png",
     "copyright": "&copy; Copyright 2010 Andrew Fresh",
     "support": {
-        "url": "http://afresh1.com",
+        "url": "http://hope.afresh1.com",
         "email": {
-            "address": "andrew+thenexthope@afresh1.com",
-            "subject": "Support"
+            "address": "andrew+hope@afresh1.com",
+            "subject": "TNH webOS Support"
         },
         "resources": [
             {
                 "type": "web",
                 "label": "Github Repository",
                 "url": "http://github.com/afresh1/hope_webos"
+            },
+            {
+                "type": "web",
+                "label": "Discussion thread on forum.hope.net",
+                "url": "http://talk.hope.net/viewtopic.php?id=4627"
             }
         ]
     }
