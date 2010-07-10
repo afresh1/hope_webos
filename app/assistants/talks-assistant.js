@@ -201,6 +201,7 @@ TalksAssistant.prototype = {
 			}
 		}.bind(this));
 
+        this.lastWhen = '';
 		this.talks.list.each(function(itemModel) {
 			if (this.lastWhen === itemModel.when) {
 				this.controller.get("separator" + itemModel.id).hide();
