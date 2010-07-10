@@ -75,6 +75,8 @@ var Talk = function(spec, favorite) {
 		that.minutes = "0" + that.minutes;
 	}
 
+    that.when = that.day + "-" + that.hours + that.minutes;
+
 	that.searchable = that.title.toLowerCase();
 	that.searchable += " " + that.location.toLowerCase();
 	that.searchable += " " + that.day.toLowerCase();

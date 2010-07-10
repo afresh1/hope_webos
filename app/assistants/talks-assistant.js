@@ -22,6 +22,7 @@ function TalksAssistant() {
 TalksAssistant.prototype = {
 	compressors: [],
 	currentListLength: 0,
+    lastWhen: '',
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
@@ -116,6 +117,10 @@ TalksAssistant.prototype = {
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
 		//Mojo.Log.info("rendered:", itemModel.id);
+        if (this.lastWhen === itemModel.when) {
+            this.controller.get("separator" + itemModel.id).hide();
+        }
+        this.lastWhen = itemModel.when;
 		itemModel.setup(this.controller);
 	},
 
