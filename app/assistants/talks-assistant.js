@@ -21,8 +21,12 @@ function TalksAssistant() {
 
 TalksAssistant.prototype = {
 	compressors: [],
+	currentListLength: 0,
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
+
+		this.talks.registerWatcher(this.updateList.bind(this));
+		this.talks.setup();
 
 		this.controller.setupWidget(
 		Mojo.Menu.appMenu, {
@@ -51,18 +55,11 @@ TalksAssistant.prototype = {
 					command: "filter-favorites"
 				}]
 			},
+			{},
 			{
-				items: [{
-					label: "Days",
-					width: 128,
-					submenu: "days-menu"
-				},
-				{
-					label: "Locations",
-					width: 128,
-					submenu: "locations-menu"
-				},
-				]
+				label: "Locations",
+				width: 128,
+				submenu: "locations-menu"
 			}]
 		});
 
@@ -83,10 +80,9 @@ TalksAssistant.prototype = {
 			spinning: true
 		});
 
-		this.controller.setupWidget("TalksList", {
-
+		this.controller.setupWidget("TalksList", this.talksListAttributes = {
 			itemTemplate: "talks/talks-item-template",
-			listTemplate: "talks/talks-list-template",
+			//listTemplate: "talks/talks-list-template",
 			dividerTemplate: 'talks/talks-divider-template',
 			dividerFunction: function(modelItem) {
 				return modelItem.day
@@ -94,6 +90,7 @@ TalksAssistant.prototype = {
 			swipeToDelete: false,
 			reordarable: false,
 			filterFunction: this.talks.search.bind(this),
+			renderLimit: 200,
 			onItemRendered: this.renderTalk.bind(this)
 		},
 		this.filterListModel = {
@@ -103,7 +100,6 @@ TalksAssistant.prototype = {
 		this.controller.listen(
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
-		this.talks.registerWatcher(this.updateList.bind(this));
 	},
 
 	cleanup: function() {
@@ -112,10 +108,10 @@ TalksAssistant.prototype = {
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
 		this.talks.list.invoke('cleanup');
-		//var i;
-		//for (i = 0; i < this.talks.list.length; i += 1) {
-		//this.talks.list[i].cleanup();
-		//}
+	},
+
+	activate: function() {
+		this.talks.setFilter();
 	},
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
@@ -163,11 +159,20 @@ TalksAssistant.prototype = {
 
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
-		var i, j, available, modelName, menu, command, menus = ["days", "locations"];
-		this.controller.get("TalksList").mojo.noticeUpdatedItems(0, this.talks.list);
+		var available, modelName, command, menus = ["days", "locations"];
 
-		for (i = 0; i < menus.length; i += 1) {
-			menu = menus[i];
+		var widget = this.controller.get("TalksList");
+
+		if (this.talks.list.length < widget.mojo.getLength()) {
+			widget.mojo.noticeRemovedItems(this.talks.list.length, widget.mojo.getLength() - 1);
+		}
+		else if (this.talksListAttributes.renderLimit < this.talks.list.length + 1) {
+			this.talksListAttributes.renderLimit = this.talks.list.length + 1;;
+		}
+
+		widget.mojo.noticeUpdatedItems(0, this.talks.list);
+
+		menus.each(function(menu) {
 			modelName = menu + "MenuModel";
 			command = "filter-" + menu + "-all";
 			available = this.talks[menu]();
@@ -178,39 +183,61 @@ TalksAssistant.prototype = {
 			}]
 
 			if (available) {
-				for (j = 0; j < available.length; j += 1) {
+				available.each(function(item) {
 					this[modelName].items.push({
-						label: available[j],
-						command: "filter-" + menu + "-" + available[j].toLowerCase()
-					})
-				}
+						label: item,
+						command: "filter-" + menu + "-" + item.toLowerCase()
+					});
+				}.bind(this));
 			}
-		}
+		}.bind(this));
 
-		this.talks.list.each(this.attachCompressorHandler.bind(this));
+		this.talks.days().each(this.attachCompressorHandler.bind(this));
 
 		this.controller.get("refresh-scrim").hide();
 		this.controller.get("refresh-spinner").mojo.stop();
 	},
 
-	attachCompressorHandler: function(item, index) {
-		//Mojo.Log.info("attachCompressorHandler:", index, "-", item.day);
-		//var compress = this.controller.get('compress'+item.day);
-		//var compressable = this.controller.get('compressable'+item.day).hide();
-		//if(!compress.hasClassName('compressor')){
-		//compress.addClassName('compressor')
-		//compress.compressorID = item.day;
-		//this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item.day));
-		//this.compressors.push(compress);
-		//}
-		//compressable.insert(item.widget);
-		//var categoryItems = this.getElementsOfCategory(item.category);
-		//categoryItems.each(function(item) {);
+	attachCompressorHandler: function(item) {
+		Mojo.Log.info("attachCompressorHandler:", item);
+
+		var compress = this.controller.get('compress' + item);
+		var compressable = this.controller.get('compressable' + item)
+		if (compress && compressable) {
+			compressable.hide();
+
+			if (!compress.hasClassName('compressor')) {
+				compress.addClassName('compressor')
+				compress.compressorID = item.day;
+				this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item));
+				this.compressors.push(compress);
+			}
+			var categoryItems = this.getElementsOfCategory(item.category);
+			categoryItems.each(this.moveElementsIntoDividers.bind(this));
+		}
+
+	},
+
+	moveElementsIntoDividers: function(item, index) {
+		//mv elements into their appropriate collapsable dividers element#{id}
+		var compressable = this.controller.get('compressable' + item.day);
+		compressable.insert(this.controller.get('element' + item.id));
+		this.controller.get('element' + item.id).show();
+	},
+
+	moveElementsOutOfDividers: function(item, index) {
+		//mv elements back into their original holders element_holder#{id}
+		this.controller.get('element_holder' + item.id).insert(this.controller.get('element' + item.id));
+	},
+
+	getElementsOfCategory: function(day) {
+		return this.talks.list.findAll(function(example) {
+			return example.day === day;
+		});
 	},
 
 	_handleDrawerSelection: function(drawer, category, event) {
-
-		Mojo.Log.info("handleDrawerSelection ");
+		Mojo.Log.info("handleDrawerSelection");
 		var targetRow = this.controller.get(event.target);
 		if (!targetRow.hasClassName("selection_target")) {
 			Mojo.Log.info("handleSoftwareSelection !selection_target");
@@ -294,6 +321,5 @@ TalksAssistant.prototype = {
 			height: 'auto'
 		});
 	}
-
 };
 

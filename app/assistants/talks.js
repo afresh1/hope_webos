@@ -22,22 +22,18 @@ var Talks = function() {
 		locations: {}
 	},
 	filters = {
-		days: false,
 		locations: false,
 		favorites: false
 	},
 	db,
 	updateWatchers = [];
 
-	returnListItems = function(key) {
+	var returnListItems = function(key) {
 		Mojo.Log.info("returnListItems:", key);
-		var items = [];
-		var name;
-		if (talksList[key]) {
-			for (name in talksList[key]) {
-				if (talksList[key].hasOwnProperty(name)) {
-					items.push(name);
-				}
+		var name, items = [];
+		for (name in talksList[key]) {
+			if (talksList[key].hasOwnProperty(name)) {
+				items.push(name);
 			}
 		}
 		items.sort();
@@ -59,6 +55,20 @@ var Talks = function() {
 				var talks = transport.responseJSON;
 				Mojo.Log.info("got talksList");
 
+				talks.sort(function(a, b) {
+					if (a.timestamp === b.timestamp) {
+						if (a.location === b.location) {
+							return 0;
+						}
+						else {
+							return a.location < b.location ? - 1: 1;
+						}
+					}
+					else {
+						return a.timestamp < b.timestamp ? - 1: 1;
+					}
+				});
+
 				db.simpleAdd("talksList", talks, function() {
 					Mojo.Log.info("talksList saved OK");
 				},
@@ -78,32 +88,6 @@ var Talks = function() {
 		});
 	},
 
-	updateTalks = function(tl) {
-		Mojo.Log.info("database size:", Object.values(tl).size());
-		var i, talk;
-
-		Mojo.Log.info("updating talksList");
-
-		talksList.full = [];
-		talksList.days = {};
-		talksList.locations = {};
-
-		for (i = 0; i < tl.length; i += 1) {
-			talk = new Talk(tl[i], self.favorite)
-
-			talksList.days[talk.day] = true;
-			talksList.locations[talk.location] = true;
-
-			talksList.full.push(talk);
-		}
-
-		applyFilters();
-
-		updateWatchers.each(function(item) {
-			item()
-		});
-	},
-
 	loadTalksDB = function() {
 		db = new Mojo.Depot({
 			name: "talksDB",
@@ -117,15 +101,35 @@ var Talks = function() {
 		else {
 			Mojo.Log.info("Talks Database opened OK");
 			db.simpleGet("talksList", function(tl) {
+				Mojo.Log.info("database size:", Object.values(tl).size());
 				if (Object.toJSON(tl) == "[]" || tl === null) {
 					Mojo.Log.info("Retrieved empty or null list");
 					getList();
 				} else {
-					updateTalks();
+					updateTalks(tl);
 				}
 			},
 			getList);
 		}
+	},
+
+	updateTalks = function(tl) {
+		Mojo.Log.info("updating talksList");
+
+		talksList.full = [];
+		talksList.days = {};
+		talksList.locations = {};
+
+		tl.each(function(item) {
+			var talk = new Talk(item, self.favorite)
+
+			talksList.days[talk.day] = true;
+			talksList.locations[talk.location] = true;
+
+			talksList.full.push(talk);
+		});
+
+		applyFilters();
 	},
 
 	searchList = function(filterString, listWidget, offset, count) {
@@ -162,31 +166,35 @@ var Talks = function() {
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
 
-			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))) {
+			if ((!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))) {
 				talksList.filtered.push(c);
 			}
 		}
+
+		updateWatchers.each(function(item) {
+			item()
+		});
 	},
 
 	setFilter = function(name, value) {
-		if (value === "all") {
-			value = false;
+		if (name) {
+			if (value === "all") {
+				value = false;
+			}
+			if (name === "favorites") {
+				value = ! filters[name];
+			}
+			Mojo.Log.info("setFilter:", name, " to ", value);
+			filters[name] = value;
 		}
-		if (name === "favorites") {
-			value = ! filters[name];
-		}
-		Mojo.Log.info("setFilter:", name, " to ", value);
-		filters[name] = value;
 		applyFilters();
 	},
 
 	registerWatcher = function(callback) {
 		updateWatchers.push(callback);
-	},
+	}
 
-	loadTalksDB();
-
-	var self = {
+	self = {
 		list: talksList.filtered,
 		days: function() {
 			return returnListItems("days")
@@ -201,6 +209,9 @@ var Talks = function() {
 		getFilter: function(name) {
 			return filters[name]
 		},
+		setup: function() {
+			loadTalksDB();
+		}
 	};
 
 	return self;

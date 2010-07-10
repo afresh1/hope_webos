@@ -41,7 +41,7 @@ TalkAssistant.prototype = {
 		}
 
 		this.controller.get('favorite').id = this.talk.widgetId;
-		this.talk.setupWidget(this.controller);
+		this.talk.setup(this.controller);
 
 		this.controller.setupWidget("SpeakerList", {
 			itemTemplate: "talk/talk-item-template",
