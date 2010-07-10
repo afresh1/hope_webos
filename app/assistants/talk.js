@@ -24,7 +24,7 @@ var Talk = function(spec, favorite) {
 	that.widgets = [];
 
 	//Mojo.Log.info("Setup talk:", id);
-	that.setupWidget = function(controller) {
+	that.setup = function(controller) {
 		//Mojo.Log.info("Setup widget talk-favorite:", id);
 		var widget = controller.get(that.widgetId);
 		that.widgets.push({

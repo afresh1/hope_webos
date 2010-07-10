@@ -58,6 +58,15 @@ var Talks = function() {
 			onComplete: function(transport) {
 				var talks = transport.responseJSON;
 				Mojo.Log.info("got talksList");
+
+				db.simpleAdd("talksList", talks, function() {
+					Mojo.Log.info("talksList saved OK");
+				},
+				function(transaction, result) {
+					Mojo.Log.warn("Database save error (#", result.message, ") - can't save talksList. Will need to reload on next use.");
+					Mojo.Controller.errorDialog("Database save error (#" + result.message + ") - can't save talksList. Will need to reload on next use.");
+				});
+
 				updateTalks(talks);
 			},
 			onFailure: function(transport) {
@@ -73,35 +82,26 @@ var Talks = function() {
 		Mojo.Log.info("database size:", Object.values(tl).size());
 		var i, talk;
 
-		if (Object.toJSON(tl) == "[]" || tl === null) {
-			Mojo.Log.info("Retrieved empty or null list");
-			getList(); // XXX dangerous!
-		} else {
-			Mojo.Log.info("updating talksList");
+		Mojo.Log.info("updating talksList");
 
-			db.simpleAdd("talksList", tl, function() {
-				Mojo.Log.info("talksList saved OK");
-			},
-			function(transaction, result) {
-				Mojo.Log.warn("Database save error (#", result.message, ") - can't save talksList. Will need to reload on next use.");
-				Mojo.Controller.errorDialog("Database save error (#" + result.message + ") - can't save talksList. Will need to reload on next use.");
-			});
+		talksList.full = [];
+		talksList.days = {};
+		talksList.locations = {};
 
-			talksList.full = [];
-			talksList.days = {};
-			talksList.locations = {};
+		for (i = 0; i < tl.length; i += 1) {
+			talk = new Talk(tl[i], self.favorite)
 
-			for (i = 0; i < tl.length; i += 1) {
-				talk = new Talk(tl[i], self.favorite)
+			talksList.days[talk.day] = true;
+			talksList.locations[talk.location] = true;
 
-				talksList.days[talk.day] = true;
-				talksList.locations[talk.location] = true;
-
-				talksList.full.push(talk);
-			}
-
-			applyFilters();
+			talksList.full.push(talk);
 		}
+
+		applyFilters();
+
+		updateWatchers.each(function(item) {
+			item()
+		});
 	},
 
 	loadTalksDB = function() {
@@ -116,7 +116,15 @@ var Talks = function() {
 		}
 		else {
 			Mojo.Log.info("Talks Database opened OK");
-			db.simpleGet("talksList", updateTalks, getList);
+			db.simpleGet("talksList", function(tl) {
+				if (Object.toJSON(tl) == "[]" || tl === null) {
+					Mojo.Log.info("Retrieved empty or null list");
+					getList();
+				} else {
+					updateTalks();
+				}
+			},
+			getList);
 		}
 	},
 
@@ -157,10 +165,6 @@ var Talks = function() {
 			if ((!filters.days || filters.days === c.day.toLowerCase()) && (!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))) {
 				talksList.filtered.push(c);
 			}
-		}
-
-		for (i = 0; i < updateWatchers.length; i += 1) {
-			updateWatchers[i]();
 		}
 	},
 

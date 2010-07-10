@@ -20,6 +20,7 @@ function TalksAssistant() {
 }
 
 TalksAssistant.prototype = {
+	compressors: [],
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
@@ -83,8 +84,13 @@ TalksAssistant.prototype = {
 		});
 
 		this.controller.setupWidget("TalksList", {
+
 			itemTemplate: "talks/talks-item-template",
 			listTemplate: "talks/talks-list-template",
+			dividerTemplate: 'talks/talks-divider-template',
+			dividerFunction: function(modelItem) {
+				return modelItem.day
+			},
 			swipeToDelete: false,
 			reordarable: false,
 			filterFunction: this.talks.search.bind(this),
@@ -94,11 +100,10 @@ TalksAssistant.prototype = {
 			items: this.talks.list
 		});
 
-		this.talks.registerWatcher(this.updateList.bind(this));
-
 		this.controller.listen(
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
+		this.talks.registerWatcher(this.updateList.bind(this));
 	},
 
 	cleanup: function() {
@@ -106,16 +111,16 @@ TalksAssistant.prototype = {
 		this.controller.stopListening(
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
-		var i;
-		for (i = 0; i < this.talks.list.length; i += 1) {
-			this.talks.list[i].cleanup();
-		}
-
+		this.talks.list.invoke('cleanup');
+		//var i;
+		//for (i = 0; i < this.talks.list.length; i += 1) {
+		//this.talks.list[i].cleanup();
+		//}
 	},
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
 		//Mojo.Log.info("rendered:", itemModel.id);
-		itemModel.setupWidget(this.controller);
+		itemModel.setup(this.controller);
 	},
 
 	listTapHandler: function(event) {
@@ -159,10 +164,7 @@ TalksAssistant.prototype = {
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
 		var i, j, available, modelName, menu, command, menus = ["days", "locations"];
-
-		// XXX This seems to get called after the search's noticeUpdatedItems
-		// XXX I don't know how to know that, or if it is even wrong.
-		this.controller.modelChanged(this.filterListModel, this);
+		this.controller.get("TalksList").mojo.noticeUpdatedItems(0, this.talks.list);
 
 		for (i = 0; i < menus.length; i += 1) {
 			menu = menus[i];
@@ -185,8 +187,113 @@ TalksAssistant.prototype = {
 			}
 		}
 
+		this.talks.list.each(this.attachCompressorHandler.bind(this));
+
 		this.controller.get("refresh-scrim").hide();
 		this.controller.get("refresh-spinner").mojo.stop();
+	},
+
+	attachCompressorHandler: function(item, index) {
+		//Mojo.Log.info("attachCompressorHandler:", index, "-", item.day);
+		//var compress = this.controller.get('compress'+item.day);
+		//var compressable = this.controller.get('compressable'+item.day).hide();
+		//if(!compress.hasClassName('compressor')){
+		//compress.addClassName('compressor')
+		//compress.compressorID = item.day;
+		//this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item.day));
+		//this.compressors.push(compress);
+		//}
+		//compressable.insert(item.widget);
+		//var categoryItems = this.getElementsOfCategory(item.category);
+		//categoryItems.each(function(item) {);
+	},
+
+	_handleDrawerSelection: function(drawer, category, event) {
+
+		Mojo.Log.info("handleDrawerSelection ");
+		var targetRow = this.controller.get(event.target);
+		if (!targetRow.hasClassName("selection_target")) {
+			Mojo.Log.info("handleSoftwareSelection !selection_target");
+			targetRow = targetRow.up('.selection_target');
+		}
+
+		if (targetRow) {
+			var toggleButton = targetRow.down("div.arrow_button");
+			if (!toggleButton.hasClassName('palm-arrow-expanded') && ! toggleButton.hasClassName('palm-arrow-closed')) {
+				return;
+			}
+			var show = toggleButton.className;
+			Mojo.Log.info("handleSoftwareSelection open/close " + show);
+			this._toggleShowHideFolders(targetRow, this.controller.window.innerHeight, null, category);
+		}
+	},
+
+	_toggleShowHideFolders: function(rowElement, viewPortMidway, noScroll, category) {
+		if (!rowElement.hasClassName("details")) {
+			return;
+		}
+
+		var toggleButton = rowElement.down("div.arrow_button");
+		if (!toggleButton.hasClassName('palm-arrow-expanded') && ! toggleButton.hasClassName('palm-arrow-closed')) {
+			return;
+		}
+
+		var categoryItems = this.getElementsOfCategory(category);
+		//Mojo.Log.info(category);
+		//console.dir(categoryItems);
+		var showFavorites = toggleButton.hasClassName('palm-arrow-closed');
+		var folderContainer = rowElement.down('.collapsor');
+		if (showFavorites) {
+			var maxHeight = folderContainer.getHeight();
+			toggleButton.addClassName('palm-arrow-expanded');
+			toggleButton.removeClassName('palm-arrow-closed');
+			folderContainer.setStyle({
+				height: '1px'
+			});
+			folderContainer.show();
+
+			// See if the div should scroll up a little to show the contents
+			var elementTop = folderContainer.viewportOffset().top;
+			var scroller = Mojo.View.getScrollerForElement(folderContainer);
+			if (elementTop > viewPortMidway && scroller && ! noScroll) {
+				//Using setTimeout to give the animation time enough to give the div enough height to scroll to
+				var scrollToPos = scroller.mojo.getScrollPosition().top - (elementTop - viewPortMidway);
+				setTimeout(function() {
+					scroller.mojo.scrollTo(undefined, scrollToPos, true);
+				},
+				200);
+			}
+		} else {
+			folderContainer.setStyle({
+				height: maxHeight + 'px'
+			});
+			toggleButton.addClassName('palm-arrow-closed');
+			toggleButton.removeClassName('palm-arrow-expanded');
+			categoryItems.each(this.moveElementsIntoDividers.bind(this));
+			var maxHeight = folderContainer.getHeight();
+		}
+
+		var options = {
+			reverse: ! showFavorites,
+			onComplete: this._animationComplete.bind(this, showFavorites, categoryItems, folderContainer),
+			curve: 'over-easy',
+			from: 1,
+			to: maxHeight,
+			duration: 0.4
+		};
+		Mojo.Animation.animateStyle(folderContainer, 'height', 'bezier', options);
+	},
+
+	_animationComplete: function(showFavorites, categoryItems, folderContainer) {
+		if (!showFavorites) {
+			folderContainer.hide();
+		} else {
+			categoryItems.each(this.moveElementsOutOfDividers.bind(this));
+		}
+		folderContainer.setStyle({
+			height: 'auto'
+		});
 	}
+
 };
 
