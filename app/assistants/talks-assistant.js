@@ -21,7 +21,6 @@ function TalksAssistant() {
 
 TalksAssistant.prototype = {
 	compressors: [],
-	lastWhen: '',
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
 
@@ -201,15 +200,15 @@ TalksAssistant.prototype = {
 			}
 		}.bind(this));
 
-        this.lastWhen = '';
+		var lastWhen = '';
 		this.talks.list.each(function(itemModel) {
-			if (this.lastWhen === itemModel.when) {
+			if (lastWhen === itemModel.when) {
 				this.controller.get("separator" + itemModel.id).hide();
 			}
 			else {
 				this.controller.get("separator" + itemModel.id).show();
 			}
-			this.lastWhen = itemModel.when;
+			lastWhen = itemModel.when;
 		}.bind(this));
 
 		this.talks.days().each(this.attachCompressorHandler.bind(this));
