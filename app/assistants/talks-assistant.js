@@ -117,10 +117,6 @@ TalksAssistant.prototype = {
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
 		//Mojo.Log.info("rendered:", itemModel.id);
-        if (this.lastWhen === itemModel.when) {
-            this.controller.get("separator" + itemModel.id).hide();
-        }
-        this.lastWhen = itemModel.when;
 		itemModel.setup(this.controller);
 	},
 
@@ -201,6 +197,16 @@ TalksAssistant.prototype = {
 				}.bind(this));
 			}
 		}.bind(this));
+
+        this.talks.list.each(function(itemModel) {
+            if (this.lastWhen === itemModel.when) {
+                this.controller.get("separator" + itemModel.id).hide();
+            }
+            else {
+                this.controller.get("separator" + itemModel.id).show();
+            }
+            this.lastWhen = itemModel.when;
+        }.bind(this));
 
 		this.talks.days().each(this.attachCompressorHandler.bind(this));
 
