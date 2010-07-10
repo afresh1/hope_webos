@@ -15,5 +15,9 @@
     {
         "scenes": "talks",
         "source": "app/assistants/talks-assistant.js"
+    },
+    {
+        "scenes": "talks",
+        "source": "app/assistants/stylematters.js"
     }
 ]
