@@ -21,7 +21,6 @@ function TalksAssistant() {
 
 TalksAssistant.prototype = {
 	compressors: [],
-	currentListLength: 0,
     lastWhen: '',
 	setup: function() {
 		Mojo.Log.info("Setup TalksAssistant");
@@ -107,6 +106,10 @@ TalksAssistant.prototype = {
 		this.controller.get("TalksList"), Mojo.Event.listTap, this.listTapHandler.bind(this));
 
 		this.talks.list.invoke('cleanup');
+
+        this.compressors.each(function(compress) {
+            this.controller.stopListening(compress[0], Mojo.Event.tap, this._handleDrawerSelection.bind(this, compress[1], compress[2]));
+        }.bind(this));
 	},
 
 	activate: function() {
@@ -226,7 +229,7 @@ TalksAssistant.prototype = {
 				compress.addClassName('compressor')
 				compress.compressorID = item.day;
 				this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item));
-				this.compressors.push(compress);
+				this.compressors.push([ compress, compressable, item ]);
 			}
 			var categoryItems = this.getElementsOfCategory(item.category);
 			categoryItems.each(this.moveElementsIntoDividers.bind(this));
