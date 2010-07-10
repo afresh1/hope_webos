@@ -55,17 +55,15 @@ TalksAssistant.prototype = {
 					command: "filter-favorites"
 				}]
 			},
-			{},
 			{
 				label: "Locations",
-				width: 128,
 				submenu: "locations-menu"
+			},
+			{},
+			{
+				label: "Notice",
+				command: "do-notice"
 			}]
-		});
-
-		this.controller.setupWidget('days-menu', null, this.daysMenuModel = {
-			items: [],
-			toggleCmd: "filter-days-all"
 		});
 
 		this.controller.setupWidget('locations-menu', null, this.locationsMenuModel = {
@@ -111,8 +109,8 @@ TalksAssistant.prototype = {
 	},
 
 	activate: function() {
-        // XXX for some reason, items that are collapsed away don't keep 
-        // XXX their favorite icon if we do this.
+		// XXX for some reason, items that are collapsed away don't keep 
+		// XXX their favorite icon if we do this.
 		//this.talks.setFilter();
 	},
 
@@ -152,6 +150,11 @@ TalksAssistant.prototype = {
 						this.talks.refresh();
 						break
 					};
+				case "do-notice":
+					{
+						this.talks.showNotice(this.controller);
+						break
+					}
 				default:
 					Mojo.Log.info("Event command " + event.command);
 				}
@@ -161,7 +164,7 @@ TalksAssistant.prototype = {
 
 	updateList: function() {
 		Mojo.Log.info("Updating filterListModel");
-		var available, modelName, command, menus = ["days", "locations"];
+		var available, modelName, command, menus = ["locations"];
 
 		var widget = this.controller.get("TalksList");
 

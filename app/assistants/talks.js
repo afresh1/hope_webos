@@ -40,6 +40,39 @@ var Talks = function() {
 		return items;
 	},
 
+	getNotice = function(controller) {
+		Mojo.Log.info("Getting Notice");
+		var that = {
+			controller: controller
+		}
+		var url = "http://www.thenexthope.org/hope_schedule/notice_json.php";
+		var myAjax = new Ajax.Request(url, {
+			method: "get",
+			evalJSON: "force",
+			requestHeaders: {
+				"USER_AGENT": navigator.userAgent
+			},
+			onComplete: function(transport) {
+				var notice = transport.responseJSON;
+				Mojo.Log.info("got notice", notice.notice);
+
+				this.controller.showAlertDialog({
+					title: $L("Notice"),
+					message: notice.notice,
+					choices: [{
+						label: "OK"
+					}]
+				});
+			}.bind(that),
+			onFailure: function(transport) {
+				// XXX not sure why this doesn't even log
+				//var t = new Template("Status #{status} returned");
+				//var m = t.evaluate(transport);
+				Mojo.Log.error("Error retrieving Notice");
+			}
+		});
+	},
+
 	getList = function(updateList) {
 		var url = "http://www.thenexthope.org/hope_schedule/json.php";
 
@@ -83,7 +116,7 @@ var Talks = function() {
 				// XXX not sure why this doesn't even log
 				//var t = new Template("Status #{status} returned");
 				//var m = t.evaluate(transport);
-				Mojo.Log.error("Error retreving talks list");
+				Mojo.Log.error("Error retrieving talks list");
 			}
 		});
 	},
@@ -209,6 +242,7 @@ var Talks = function() {
 		getFilter: function(name) {
 			return filters[name]
 		},
+		showNotice: getNotice,
 		setup: function() {
 			loadTalksDB();
 		}
