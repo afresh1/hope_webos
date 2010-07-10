@@ -20,7 +20,7 @@ styleMatters = {
 			}
 			var show = toggleButton.className;
 			Mojo.Log.info("handleSoftwareSelection open/close " + show);
-			this._toggleShowHideFolders(targetRow, this.controller.window.innerHeight, null, category);
+			styleMatters._toggleShowHideFolders(targetRow, this.controller.window.innerHeight, null, category).bind(this);
 		}
 	},
 
@@ -71,7 +71,7 @@ styleMatters = {
 
 		var options = {
 			reverse: ! showFavorites,
-			onComplete: this._animationComplete.bind(this, showFavorites, categoryItems, folderContainer),
+			onComplete: styleMatters._animationComplete.bind(this, showFavorites, categoryItems, folderContainer),
 			curve: 'over-easy',
 			from: 1,
 			to: maxHeight,
