@@ -30,3 +30,7 @@
 .icon.favorite.is-favorite {
     background: url(../images/fav_on.png) center center no-repeat;
 }
+
+.subtitle.right {
+    text-align: right;
+}
