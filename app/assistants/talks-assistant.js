@@ -86,7 +86,6 @@ TalksAssistant.prototype = {
 
 		this.controller.setupWidget("TalksList", this.talksListAttributes = {
 			itemTemplate: "talks/talks-item-template",
-			//listTemplate: "talks/talks-list-template",
 			dividerTemplate: 'talks/talks-divider-template',
 			dividerFunction: function(modelItem) {
 				return modelItem.day
@@ -94,6 +93,9 @@ TalksAssistant.prototype = {
 			swipeToDelete: false,
 			reordarable: false,
 			filterFunction: this.talks.search.bind(this),
+            // XXX Don't want to set renderLimit this high, 
+            // XXX but the stupid collapsers don't work properly 
+            // XXX unless everything gets rendered.
 			renderLimit: 200,
 			onItemRendered: this.renderTalk.bind(this)
 		},
