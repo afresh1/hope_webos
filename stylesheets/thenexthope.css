@@ -14,9 +14,15 @@
 
 .hope-icon {
     float: left;
-    width: 58px;
-    height: 58px;
+    margin: 13px;
+    height: 32px;
+    width: 32px;
     background: url(../icon_32x32.png) center center no-repeat;
+}
+
+.activity-spinner {
+    float: right;
+    margin: 9px 3px;
 }
 
 .favorite-icon {

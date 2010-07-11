@@ -77,6 +77,13 @@ TalksAssistant.prototype = {
 			spinning: true
 		});
 
+		this.controller.setupWidget("activity-spinner", {
+			spinnerSize: Mojo.Widget.spinnerSmall
+		},
+		{
+			spinning: false
+		});
+
 		this.controller.setupWidget("TalksList", this.talksListAttributes = {
 			itemTemplate: "talks/talks-item-template",
 			//listTemplate: "talks/talks-list-template",
@@ -155,9 +162,11 @@ TalksAssistant.prototype = {
 					};
 				case "do-notice":
 					{
+						this.controller.get("activity-spinner").mojo.start();
 						this.commandMenuModel.items[3].disabled = true;
 						this.controller.modelChanged(this.commandMenuModel);
 						this.talks.showNotice(this.controller, function() {
+							this.controller.get("activity-spinner").mojo.stop();
 							this.commandMenuModel.items[3].disabled = false;
 							this.controller.modelChanged(this.commandMenuModel);
 						}.bind(this));
