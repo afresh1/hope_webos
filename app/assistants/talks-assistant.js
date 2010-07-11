@@ -45,7 +45,7 @@ TalksAssistant.prototype = {
 		this.controller.setupWidget(Mojo.Menu.commandMenu, {
 			menuClass: 'no-fade',
 		},
-		{
+		this.commandMenuModel = {
 			visible: true,
 			items: [{
 				toggleCmd: "filter-favorites-all",
@@ -155,7 +155,12 @@ TalksAssistant.prototype = {
 					};
 				case "do-notice":
 					{
-						this.talks.showNotice(this.controller);
+						this.commandMenuModel.items[3].disabled = true;
+						this.controller.modelChanged(this.commandMenuModel);
+						this.talks.showNotice(this.controller, function() {
+							this.commandMenuModel.items[3].disabled = false;
+							this.controller.modelChanged(this.commandMenuModel);
+						}.bind(this));
 						break
 					}
 				default:

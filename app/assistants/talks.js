@@ -40,7 +40,7 @@ var Talks = function() {
 		return items;
 	},
 
-	getNotice = function(controller) {
+	getNotice = function(controller, callback) {
 		Mojo.Log.info("Getting Notice");
 		var that = {
 			controller: controller
@@ -63,12 +63,14 @@ var Talks = function() {
 						label: "OK"
 					}]
 				});
+				callback();
 			}.bind(that),
 			onFailure: function(transport) {
 				// XXX not sure why this doesn't even log
 				//var t = new Template("Status #{status} returned");
 				//var m = t.evaluate(transport);
 				Mojo.Log.error("Error retrieving Notice");
+				callback();
 			}
 		});
 	},
