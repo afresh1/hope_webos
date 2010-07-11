@@ -26,7 +26,8 @@ var Talks = function() {
 		favorites: false
 	},
 	db,
-	updateWatchers = [];
+	updateWatchers = [],
+	favorite = new Favorites();
 
 	var returnListItems = function(key) {
 		Mojo.Log.info("returnListItems:", key);
@@ -66,9 +67,6 @@ var Talks = function() {
 				callback();
 			}.bind(that),
 			onFailure: function(transport) {
-				// XXX not sure why this doesn't even log
-				//var t = new Template("Status #{status} returned");
-				//var m = t.evaluate(transport);
 				Mojo.Log.error("Error retrieving Notice");
 				callback();
 			}
@@ -115,9 +113,6 @@ var Talks = function() {
 				updateTalks(talks);
 			},
 			onFailure: function(transport) {
-				// XXX not sure why this doesn't even log
-				//var t = new Template("Status #{status} returned");
-				//var m = t.evaluate(transport);
 				Mojo.Log.error("Error retrieving talks list");
 			}
 		});
@@ -156,7 +151,7 @@ var Talks = function() {
 		talksList.locations = {};
 
 		tl.each(function(item) {
-			var talk = new Talk(item, self.favorite)
+			var talk = new Talk(item, favorite)
 
 			talksList.days[talk.day] = true;
 			talksList.locations[talk.location] = true;
@@ -201,7 +196,7 @@ var Talks = function() {
 		for (i = 0; i < talksList.full.length; i += 1) {
 			c = talksList.full[i];
 
-			if ((!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || self.favorite.is(c.id))) {
+			if ((!filters.locations || filters.locations === c.location.toLowerCase()) && (!filters.favorites || favorite.is(c.id))) {
 				talksList.filtered.push(c);
 			}
 		}

@@ -16,7 +16,6 @@
 
 function TalksAssistant() {
 	this.talks = new Talks();
-	this.talks.favorite = new Favorites();
 }
 
 TalksAssistant.prototype = {
@@ -35,7 +34,7 @@ TalksAssistant.prototype = {
 			visible: true,
 			items: [
 			Mojo.Menu.editItem, {
-				label: "Refresh talks",
+				label: "Update Schedule",
 				command: "do-refresh"
 			},
 			//Mojo.Menu.prefsItem,
@@ -93,8 +92,8 @@ TalksAssistant.prototype = {
 			swipeToDelete: false,
 			reordarable: false,
 			filterFunction: this.talks.search.bind(this),
-			// XXX Don't want to set renderLimit this high, 
-			// XXX but the stupid collapsers don't work properly 
+			// XXX Don't want to set renderLimit this high (or at all), 
+			// XXX but the stupid collapsible dividers don't work properly 
 			// XXX unless everything gets rendered.
 			renderLimit: 200,
 			onItemRendered: this.renderTalk.bind(this)
@@ -118,12 +117,6 @@ TalksAssistant.prototype = {
 		this.compressors.each(function(compress) {
 			this.controller.stopListening(compress[0], Mojo.Event.tap, this._handleDrawerSelection.bind(this, compress[1], compress[2]));
 		}.bind(this));
-	},
-
-	activate: function() {
-		// XXX for some reason, items that are collapsed away don't keep 
-		// XXX their favorite icon if we do this.
-		//this.talks.setFilter();
 	},
 
 	renderTalk: function(listWidget, itemModel, itemNode) {
@@ -254,7 +247,7 @@ TalksAssistant.prototype = {
 	},
 
 	moveElementsIntoDividers: function(item, index) {
-		//mv elements into their appropriate collapsable dividers element#{id}
+		//mv elements into their appropriate collapsible dividers element#{id}
 		var compressable = this.controller.get('compressable' + item.day);
 		compressable.insert(this.controller.get('element' + item.id));
 		this.controller.get('element' + item.id).show();
