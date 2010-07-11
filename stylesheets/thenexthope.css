@@ -1,9 +1,3 @@
-.where {
-    color: lightgrey;
-    font-size: small;
-    text-align: right;
-}
-
 #mojo-scene-talks-scene-scroller {
     background: url(../images/background1.jpg) center center no-repeat;
 }
@@ -12,29 +6,27 @@
     background: url(../images/background3.jpg) center center no-repeat;
 }
 
-.hope-icon {
-    float: left;
-    margin: 13px;
-    height: 32px;
-    width: 32px;
-    background: url(../icon_32x32.png) center center no-repeat;
-}
-
 .activity-spinner {
     float: right;
     margin: 9px 3px;
 }
 
-.favorite-icon {
+.icon.hope {
     float: left;
+    margin-left: 13px;
+    height: 32px;
+    width: 32px;
+    background: url(../icon_32x32.png) center center no-repeat;
+}
+
+.icon.favorite {
+    float: left;
+    margin: 5px 3px;
     width: 40px;
-    height: 65px;
+    height: 40px;
     background: url(../images/fav_off.png) center center no-repeat;
 }
 
-.favorite-icon.is-favorite {
-    float: left;
-    width: 40px;
-    height: 65px;
+.icon.favorite.is-favorite {
     background: url(../images/fav_on.png) center center no-repeat;
 }
