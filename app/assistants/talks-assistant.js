@@ -93,9 +93,9 @@ TalksAssistant.prototype = {
 			swipeToDelete: false,
 			reordarable: false,
 			filterFunction: this.talks.search.bind(this),
-            // XXX Don't want to set renderLimit this high, 
-            // XXX but the stupid collapsers don't work properly 
-            // XXX unless everything gets rendered.
+			// XXX Don't want to set renderLimit this high, 
+			// XXX but the stupid collapsers don't work properly 
+			// XXX unless everything gets rendered.
 			renderLimit: 200,
 			onItemRendered: this.renderTalk.bind(this)
 		},
