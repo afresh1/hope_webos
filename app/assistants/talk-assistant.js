@@ -79,10 +79,8 @@ TalkAssistant.prototype = {
 	},
 
 	handleBioChange: function(event) {
-		var targetRow = this.controller.get(event.target);
-		var drawer = targetRow.up("div.palm-row").next('div.drawer');
-		this.controller.get(drawer).mojo.setOpenState(!this.controller.get(drawer).mojo.getOpenState());
-
+		var drawer = event.target.up(".palm-row").down(".drawer");
+		drawer.mojo.setOpenState(!drawer.mojo.getOpenState());
 	}
 };
 

@@ -34,3 +34,7 @@
 .subtitle.right {
     text-align: right;
 }
+
+.palm-drawer-container { 
+    margin: 0px 10px 10px;
+}
