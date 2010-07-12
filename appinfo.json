@@ -1,10 +1,10 @@
 {
-	"id": "com.afresh1.hope-webos-beta",
-	"version": "0.6.0",
+	"id": "com.afresh1.hope-webos",
+	"version": "1.0.0",
 	"vendor": "Andrew Fresh",
 	"type": "web",
 	"main": "index.html",
-	"title": "The Next HOPE (beta)",
+	"title": "The Next HOPE",
 	"icon": "icon.png",
     "smallicon": "icon_32x32.png",
     "copyright": "&copy; Copyright 2010 Andrew Fresh",
