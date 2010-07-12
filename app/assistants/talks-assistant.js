@@ -93,7 +93,7 @@ TalksAssistant.prototype = {
 			reordarable: false,
 			filterFunction: function(filterString, listWidget, offset, count) {
 				this.talks.search(filterString, listWidget, offset, count);
-				this.showHideDividers();
+				this.updateSeparators();
 			}.bind(this),
 			// XXX Don't want to set renderLimit this high (or at all), 
 			// XXX but the stupid collapsible dividers don't work properly 
@@ -212,23 +212,26 @@ TalksAssistant.prototype = {
 			}
 		}.bind(this));
 
-		this.showHideDividers();
-
-		this.talks.days().each(this.attachCompressorHandler.bind(this));
+		this.updateSeparators();
 
 		this.controller.get("refresh-scrim").hide();
 		this.controller.get("refresh-spinner").mojo.stop();
 	},
 
-	showHideDividers: function() {
+	updateSeparators: function() {
+		this.talks.days().each(this.attachCompressorHandler.bind(this));
+
 		var lastWhen = '';
 		this.talks.list.each(function(itemModel) {
-			if (lastWhen === itemModel.when) {
-				this.controller.get("separator" + itemModel.id).hide();
-			}
-			else {
-				this.controller.get("separator" + itemModel.id).show();
-			}
+            var separator = this.controller.get("separator" + itemModel.id);
+            if (separator) {
+                if (lastWhen === itemModel.when) {
+                    separator.hide();
+                }
+                else {
+                    separator.show();
+                }
+            }
 			lastWhen = itemModel.when;
 		}.bind(this));
 	},
