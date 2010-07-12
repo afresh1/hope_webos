@@ -212,6 +212,7 @@ TalksAssistant.prototype = {
 			}
 		}.bind(this));
 
+		widget.mojo.close();
 		this.updateSeparators();
 
 		this.controller.get("refresh-scrim").hide();
@@ -223,15 +224,15 @@ TalksAssistant.prototype = {
 
 		var lastWhen = '';
 		this.talks.list.each(function(itemModel) {
-            var separator = this.controller.get("separator" + itemModel.id);
-            if (separator) {
-                if (lastWhen === itemModel.when) {
-                    separator.hide();
-                }
-                else {
-                    separator.show();
-                }
-            }
+			var separator = this.controller.get("separator" + itemModel.id);
+			if (separator) {
+				if (lastWhen === itemModel.when) {
+					separator.hide();
+				}
+				else {
+					separator.show();
+				}
+			}
 			lastWhen = itemModel.when;
 		}.bind(this));
 	},
@@ -246,10 +247,12 @@ TalksAssistant.prototype = {
 
 			if (!compress.hasClassName('compressor')) {
 				compress.addClassName('compressor')
-				compress.compressorID = item.day;
-				this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item));
-				this.compressors.push([compress, compressable, item]);
+                compress.compressorID = item.day;
+
+                this.controller.listen(compress, Mojo.Event.tap, this._handleDrawerSelection.bind(this, compressable, item));
+                this.compressors.push([compress, compressable, item]);
 			}
+
 			var categoryItems = this.getElementsOfCategory(item.category);
 			categoryItems.each(this.moveElementsIntoDividers.bind(this));
 		}
@@ -258,14 +261,25 @@ TalksAssistant.prototype = {
 
 	moveElementsIntoDividers: function(item, index) {
 		//mv elements into their appropriate collapsible dividers element#{id}
-		var compressable = this.controller.get('compressable' + item.day);
-		compressable.insert(this.controller.get('element' + item.id));
-		this.controller.get('element' + item.id).show();
+		var element = this.controller.get('element' + item.id);
+		if (element) {
+			var compressable = this.controller.get('compressable' + item.day);
+			if (compressable) {
+				compressable.insert(element);
+			}
+			element.show();
+		}
 	},
 
 	moveElementsOutOfDividers: function(item, index) {
 		//mv elements back into their original holders element_holder#{id}
-		this.controller.get('element_holder' + item.id).insert(this.controller.get('element' + item.id));
+		var element = this.controller.get('element' + item.id);
+		if (element) {
+			var holder = this.controller.get('element_holder' + item.id);
+			if (holder) {
+				holder.insert(element);
+			}
+		}
 	},
 
 	getElementsOfCategory: function(day) {
