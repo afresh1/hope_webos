@@ -148,7 +148,7 @@ sub schedule {
             $talk{when}      = "$when";
             $talk{timestamp} = $when->epoch;
             $talk{location}  = join ' ', @rooms;
-            #$talk{length}    = $length if $length;
+            $talk{length}    = $length if $length;
         }
 
         $talk->find('br')->each( sub { $_[0]->replace('') } );
