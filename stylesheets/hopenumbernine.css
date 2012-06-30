@@ -1,0 +1,40 @@
+#mojo-scene-talks-scene-scroller {
+    background: url(../images/background.gif) center center no-repeat;
+}
+
+#mojo-scene-talk-scene-scroller {
+    background: url(../images/background.gif) center center no-repeat;
+}
+
+.activity-spinner {
+    float: right;
+    margin: 9px 3px;
+}
+
+.icon.hope {
+    float: left;
+    margin-left: 13px;
+    height: 32px;
+    width: 32px;
+    background: url(../icon_32x32.png) center center no-repeat;
+}
+
+.icon.favorite {
+    float: left;
+    margin: 5px 3px;
+    width: 40px;
+    height: 40px;
+    background: url(../images/fav_off.png) center center no-repeat;
+}
+
+.icon.favorite.is-favorite {
+    background: url(../images/fav_on.png) center center no-repeat;
+}
+
+.subtitle.right {
+    text-align: right;
+}
+
+.palm-drawer-container { 
+    margin: 0px 10px 10px;
+}
