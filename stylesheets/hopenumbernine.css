@@ -1,9 +1,27 @@
 #mojo-scene-talks-scene-scroller {
-    background: url(../images/background.gif) center center no-repeat;
+    background: #e9e7ce;
 }
 
 #mojo-scene-talk-scene-scroller {
-    background: url(../images/background.gif) center center no-repeat;
+    background: #e9e7ce;
+}
+
+.palm-drawer-container {
+    border-image: none;
+	border-width: 0px;
+    margin: 0px 15px 15px;
+}
+
+.palm-page-header-wrapper {
+    background: #e47b5e;
+}
+
+#TalkScene .palm-page-header-wrapper {
+    background: #c2c1aa;
+}
+
+#TalkScene .palm-drawer-contents {
+    margin: 0px;
 }
 
 .activity-spinner {
@@ -35,6 +53,19 @@
     text-align: right;
 }
 
-.palm-drawer-container { 
-    margin: 0px 10px 10px;
+#TalksScene .title {
+    color: #214248;
 }
+
+#TalksScene .label.right {
+    color: #67aab3;
+}
+
+#TalkScene .title {
+    color: #8a2509;
+}
+
+#TalkScene .subtitle {
+    color: #e47b5e;
+}
+

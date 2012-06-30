@@ -21,7 +21,7 @@ function StageAssistant() {
 StageAssistant.prototype.setup = function() {
 	/* this function is for setup tasks that have to happen when the stage is first created */
 
-	$$('body')[0].addClassName('palm-dark');
+	//$$('body')[0].addClassName('palm-dark');
 
 	/* for a simple application, the stage assistant's only task is to push the scene, making it
 	   visible */
