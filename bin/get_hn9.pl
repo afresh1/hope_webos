@@ -107,9 +107,13 @@ sub schedule {
             next unless $id;
             $speaker->replace('');
 
+            my $bio = $speakers->{$id}->{bio} || '';
+
+            warn "No bio for $speaker" unless $bio;
+
             push @{ $talk{speakers} }, {
                 name => $speaker->all_text,
-                bio  => $speakers->{$id}->{bio} || '',
+                bio  => $bio,
             };
         }
 
