@@ -59,7 +59,8 @@ sub speakers {
         next unless $name;
         next unless $name->all_text;
 
-        $name->replace( $name->at('strong') );
+        #$name->replace( $name->at('strong') );
+        $name->replace('');
 
         $bio = $bio->content_xml;
         $bio =~ s/^\s+|\s+$//gs;
