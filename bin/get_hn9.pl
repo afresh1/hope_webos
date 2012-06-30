@@ -76,6 +76,9 @@ sub speakers {
         $name->replace('');
 
         my $id = $fixup_ids{ $name->{name} } || $name->{name};
+        next unless $id;
+
+        warn "Already have a bio for $name" if $speakers{$id};
 
         $bio = $bio->content_xml;
         $bio =~ s/^\s+|\s+$//gs;
