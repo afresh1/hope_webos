@@ -43,6 +43,19 @@ my %replace = (
     q{"} => qr/&ldquo;|&rdquo;/,
 );
 
+my %fixup_ids = (
+    connos    => 'connor',
+    gonzales  => 'gonzalez',
+    klien     => 'klein',
+    mrobinson => 'mrobison',
+    neaman    => 'newman',
+    robinson  => 'robison',
+    roboson   => 'robison',
+    shaw      => 'shah',
+    vilas     => 'vivas',
+);
+
+
 my $schedule = schedule();
 print Mojo::JSON->new->encode($schedule);
 
@@ -62,10 +75,11 @@ sub speakers {
         #$name->replace( $name->at('strong') );
         $name->replace('');
 
+        my $id = $fixup_ids{ $name->{name} } || $name->{name};
+
         $bio = $bio->content_xml;
         $bio =~ s/^\s+|\s+$//gs;
-
-        $speakers{ $name->{name} } = {
+        $speakers{$id} = {
             name => $name->all_text,
             bio  => $bio,
         };
@@ -107,8 +121,9 @@ sub schedule {
             next unless $id;
             $speaker->replace('');
 
-            my $bio = $speakers->{$id}->{bio} || '';
+            $id = $fixup_ids{ $id } || $id;
 
+            my $bio = $speakers->{$id}->{bio} || '';
             warn "No bio for $speaker" unless $bio;
 
             push @{ $talk{speakers} }, {
