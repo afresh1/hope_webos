@@ -46,7 +46,7 @@ var Talks = function() {
 		var that = {
 			controller: controller
 		}
-		var url = "http://www.thenexthope.org/hope_schedule/notice_json.php";
+		var url = "http://hope.afresh1.com/numbernine/notice.json";
 		var myAjax = new Ajax.Request(url, {
 			method: "get",
 			evalJSON: "force",
@@ -74,7 +74,7 @@ var Talks = function() {
 	},
 
 	getList = function(updateList) {
-		var url = "http://www.thenexthope.org/hope_schedule/json.php";
+		var url = "http://hope.afresh1.com/numbernine/schedule.json";
 
 		Mojo.Log.info("Retrieving new talksList from ", url);
 
