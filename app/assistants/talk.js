@@ -18,7 +18,9 @@ var Talk = function(spec, favorite) {
 	var that = spec,
 	id = that.id,
 	day_names = Mojo.Locale.getDayNames(),
-	d = new Date(that.timestamp * 1000);
+	// Subtract 4 hours to adjust for the NYC timezone
+	// because Mojo doesn't do that for me
+	d = new Date((that.timestamp + ( -4 * 60 * 60 ) ) * 1000);
 
 	that.widgetId = "talk-favorite-" + id;
 	that.widgets = [];
