@@ -76,6 +76,8 @@ TalkAssistant.prototype = {
 		});
 		this.controller.listen(button, Mojo.Event.tap, this.handleBioChange);
 		this.listeners.push(button);
+		this.controller.listen(drawer, Mojo.Event.tap, this.handleBioChange);
+		this.listeners.push(drawer);
 	},
 
 	handleBioChange: function(event) {
