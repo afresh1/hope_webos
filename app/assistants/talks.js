@@ -137,6 +137,7 @@ var Talks = function() {
 					getList();
 				} else if (! tl[0].rooms) {
 					Mojo.Log.info("Have an old db, updating");
+					favorite.clear_all();
 					getList();
 				} else {
 					updateTalks(tl);
@@ -291,11 +292,18 @@ var Favorites = function() {
 		storeCookie();
 	};
 
+	clearFavorites = function() {
+		Mojo.Log.info("Clearing Favorites");
+		favorites = {};
+		storeCookie();
+	};
+
 	loadCookie();
 
 	return {
 		is: isFavorite,
 		set: setFavorite,
+		clear_all: clearFavorites,
 	}
 };
 
