@@ -24,6 +24,7 @@ var Talk = function(spec, favorite) {
 
 	that.widgetId = "talk-favorite-" + id;
 	that.widgets = [];
+	that.room = {};
 
 	//Mojo.Log.info("Setup talk:", id);
 	that.setup = function(controller) {
@@ -37,6 +38,10 @@ var Talk = function(spec, favorite) {
 		if (favorite.is(id)) {
 			widget.addClassName("is-favorite");
 		}
+
+		that.rooms.each(function(room) {
+			that.room[ room.toLowerCase() ] = true;
+		});
 
 		controller.listen(widget, Mojo.Event.tap, that.changeFavorite);
 	},
@@ -64,6 +69,11 @@ var Talk = function(spec, favorite) {
 				this.widgets[i].widget.removeClassName("is-favorite");
 			}
 		}
+	}.bind(that);
+
+	that.inLocation = function(location) {
+		//Mojo.Log.info("inLocation: " + location);
+		return that.room[ location.toLowerCase() ];
 	}.bind(that);
 
 	//that.date = d.toUTCString();
