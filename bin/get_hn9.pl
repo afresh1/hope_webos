@@ -43,6 +43,19 @@ my %replace = (
     q{"} => qr/&ldquo;|&rdquo;/,
 );
 
+my %fixup_ids = (
+    connos    => 'connor',
+    gonzales  => 'gonzalez',
+    klien     => 'klein',
+    mrobinson => 'mrobison',
+    neaman    => 'newman',
+    robinson  => 'robison',
+    roboson   => 'robison',
+    shaw      => 'shah',
+    vilas     => 'vivas',
+);
+
+
 my $schedule = schedule();
 print Mojo::JSON->new->encode($schedule);
 
@@ -59,12 +72,18 @@ sub speakers {
         next unless $name;
         next unless $name->all_text;
 
-        $name->replace( $name->at('strong') );
+        #$name->replace( $name->at('strong') );
+        $name->replace('');
+
+        my $id = $fixup_ids{ $name->{name} } || $name->{name};
+        next unless $id;
+
+        warn "Already have a bio for $name" if $speakers{$id};
 
         $bio = $bio->content_xml;
         $bio =~ s/^\s+|\s+$//gs;
-
-        $speakers{ $name->{name} } = {
+        $bio =~ s/^,\s*//; # remove the comma from Robert Steele's bio
+        $speakers{$id} = {
             name => $name->all_text,
             bio  => $bio,
         };
@@ -106,9 +125,14 @@ sub schedule {
             next unless $id;
             $speaker->replace('');
 
+            $id = $fixup_ids{ $id } || $id;
+
+            my $bio = $speakers->{$id}->{bio} || '';
+            warn "No bio for $speaker" unless $bio;
+
             push @{ $talk{speakers} }, {
                 name => $speaker->all_text,
-                bio  => $speakers->{$id}->{bio} || '',
+                bio  => $bio,
             };
         }
 
@@ -124,6 +148,7 @@ sub schedule {
         if ( $ww ) {
             $ww =~ s/^\s+|\s+$//g;
             my ( $day, $time, @rooms ) = split /\s+/, $ww;
+            s/,$//g for @rooms;
 
             my $length = '';
             if ($rooms[-1] =~ /\)$/) {
@@ -144,10 +169,11 @@ sub schedule {
                 hours   => $hours,
                 minutes => $minutes
             );
-
+ 
             $talk{when}      = "$when";
             $talk{timestamp} = $when->epoch;
-            $talk{location}  = join ' ', @rooms;
+            $talk{rooms}     = \@rooms;
+            $talk{location}  = join ', ', @rooms;
             $talk{length}    = $length if $length;
         }
 
