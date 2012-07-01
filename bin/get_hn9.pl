@@ -147,6 +147,7 @@ sub schedule {
         if ( $ww ) {
             $ww =~ s/^\s+|\s+$//g;
             my ( $day, $time, @rooms ) = split /\s+/, $ww;
+            s/,$//g for @rooms;
 
             my $length = '';
             if ($rooms[-1] =~ /\)$/) {
@@ -167,10 +168,11 @@ sub schedule {
                 hours   => $hours,
                 minutes => $minutes
             );
-
+ 
             $talk{when}      = "$when";
             $talk{timestamp} = $when->epoch;
-            $talk{location}  = join ' ', @rooms;
+            $talk{rooms}     = \@rooms;
+            $talk{location}  = join ', ', @rooms;
             $talk{length}    = $length if $length;
         }
 
