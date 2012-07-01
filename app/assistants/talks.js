@@ -135,6 +135,9 @@ var Talks = function() {
 				if (Object.toJSON(tl) == "[]" || tl === null) {
 					Mojo.Log.info("Retrieved empty or null list");
 					getList();
+				} else if (! tl[0].rooms) {
+					Mojo.Log.info("Have an old db, updating");
+					getList();
 				} else {
 					updateTalks(tl);
 				}
