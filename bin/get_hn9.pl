@@ -82,6 +82,7 @@ sub speakers {
 
         $bio = $bio->content_xml;
         $bio =~ s/^\s+|\s+$//gs;
+        $bio =~ s/^,\s*//; # remove the comma from Robert Steele's bio
         $speakers{$id} = {
             name => $name->all_text,
             bio  => $bio,
