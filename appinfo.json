@@ -17,6 +17,11 @@
         "resources": [
             {
                 "type": "web",
+                "label": "FAQ",
+                "url": "http://www.hopenumbernine.net/faqs/"
+            },
+            {
+                "type": "web",
                 "label": "Github Repository",
                 "url": "http://github.com/afresh1/hope_webos"
             },
