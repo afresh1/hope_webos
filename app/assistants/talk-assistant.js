@@ -43,6 +43,12 @@ TalkAssistant.prototype = {
 		this.controller.get('favorite').id = this.talk.widgetId;
 		this.talk.setup(this.controller);
 
+		if (!this.talk.speakers.length) {
+			Mojo.Log.info("Hiding empty speaker list for " + this.id);
+			this.controller.get('speakers').hide();
+			return;
+		}
+
 		this.controller.setupWidget("SpeakerList", {
 			itemTemplate: "talk/talk-item-template",
 			listTemplate: "talk/talk-list-template",
