@@ -35,7 +35,7 @@ TalkAssistant.prototype = {
 			Mojo.Menu.helpItem]
 		});
 
-		var i, fields = ['title', 'day', 'hours', 'minutes', 'location', 'description'];
+		var i, fields = ['title', 'day', 'hours', 'minutes', 'length', 'location', 'description'];
 		for (i = 0; i < fields.length; i += 1) {
 			this.controller.get(fields[i]).update(this.talk[fields[i]]);
 		}
